@@ -44,23 +44,23 @@ pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document> {
     Ok(document)
 }
 
-pub fn create_element_with_text(
+pub fn create_node_with_text(
     tag_name: &str,
     class_name: &str,
     text_content: Option<&str>,
-) -> Result<web_sys::Element> {
+) -> Result<web_sys::Node> {
     let element = create_element(tag_name);
     element.set_class_name(class_name);
     element.set_text_content(text_content);
 
-    Ok(element)
+    Ok(web_sys::Node::from(element))
 }
 
-pub fn create_element_with_children(
+pub fn create_node_with_children(
     tag_name: &str,
     class_name: &str,
     child_nodes: Vec<&Node>,
-) -> Result<web_sys::Element> {
+) -> Result<web_sys::Node> {
     let element = create_element(tag_name);
     element.set_class_name(class_name);
 
@@ -68,7 +68,7 @@ pub fn create_element_with_children(
         element.append_child(node).unwrap();
     }
 
-    Ok(element)
+    Ok(web_sys::Node::from(element))
 }
 
 #[wasm_bindgen]
