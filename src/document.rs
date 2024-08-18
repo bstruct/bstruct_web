@@ -44,7 +44,7 @@ pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document> {
     Ok(document)
 }
 
-pub fn create_new_element_with_text(
+pub fn create_element_with_text(
     tag_name: &str,
     class_name: &str,
     text_content: Option<&str>,
@@ -56,7 +56,7 @@ pub fn create_new_element_with_text(
     Ok(element)
 }
 
-pub fn create_new_element_with_children(
+pub fn create_element_with_children(
     tag_name: &str,
     class_name: &str,
     child_nodes: Vec<&Node>,
