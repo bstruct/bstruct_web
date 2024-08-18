@@ -50,7 +50,9 @@ pub fn create_node_with_text(
     text_content: Option<&str>,
 ) -> Result<web_sys::Node> {
     let element = create_element(tag_name);
-    element.set_class_name(class_name);
+    if class_name.len() > 0 {
+        element.set_class_name(class_name);
+    }
     element.set_text_content(text_content);
 
     Ok(web_sys::Node::from(element))
@@ -62,7 +64,9 @@ pub fn create_node_with_children(
     child_nodes: Vec<&Node>,
 ) -> Result<web_sys::Node> {
     let element = create_element(tag_name);
-    element.set_class_name(class_name);
+    if class_name.len() > 0 {
+        element.set_class_name(class_name);
+    }
 
     for node in child_nodes {
         element.append_child(node).unwrap();
