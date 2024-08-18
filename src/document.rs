@@ -44,6 +44,33 @@ pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document> {
     Ok(document)
 }
 
+pub fn create_new_element_with_text(
+    tag_name: &str,
+    class_name: &str,
+    text_content: Option<&str>,
+) -> Result<web_sys::Element> {
+    let element = create_element(tag_name);
+    element.set_class_name(class_name);
+    element.set_text_content(text_content);
+
+    Ok(element)
+}
+
+pub fn create_new_element_with_children(
+    tag_name: &str,
+    class_name: &str,
+    child_nodes: Vec<&Node>,
+) -> Result<web_sys::Element> {
+    let element = create_element(tag_name);
+    element.set_class_name(class_name);
+
+    for node in child_nodes {
+        element.append_child(node).unwrap();
+    }
+
+    Ok(element)
+}
+
 #[wasm_bindgen]
 extern "C" {
     // #[wasm_bindgen(js_namespace = document)]
