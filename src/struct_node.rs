@@ -1,5 +1,6 @@
 use std::error;
+use crate::document::HtmlNode;
 
 pub trait StructNodeTrait {
-    fn render(&self) -> Result<web_sys::Node, Box<dyn error::Error>>;
+    fn render(&self) -> Result<HtmlNode, Box<dyn error::Error>>;
 }

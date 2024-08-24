@@ -1,7 +1,35 @@
 use crate::error_messages::ErrorMessages;
-use web_sys::Node;
-
 use wasm_bindgen::prelude::*;
+
+//https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+#[derive(Debug)]
+pub enum HtmlNode {
+    ElementNode(web_sys::Element),
+    // AttributeNode,
+    // TextNode,
+    // CDataSectionNode,
+    // ProcessingInstructionNode,
+    // CommentNode,
+    // DocumentNode,
+    // DocumentTypeNode,
+    DocumentFragmentNode(web_sys::DocumentFragment),
+}
+
+impl HtmlNode {
+    pub fn to_node(&self) -> web_sys::Node {
+        match &self {
+            HtmlNode::ElementNode(element) => web_sys::Node::from(element.to_owned()),
+            HtmlNode::DocumentFragmentNode(element) => web_sys::Node::from(element.to_owned()),
+        }
+    }
+
+    pub fn to_element_node(&self) -> std::result::Result<web_sys::Element, Box<dyn error::Error>> {
+        match &self {
+            HtmlNode::ElementNode(element) => Ok(element.to_owned()),
+            _ => Err("node is not an element node".into()),
+        }
+    }
+}
 
 // Change the alias to use `Box<dyn error::Error>`.
 use std::error;
@@ -34,8 +62,8 @@ pub fn create_element(tag_name: &str) -> Result<web_sys::Element, Box<dyn error:
 
 pub struct InitialSetup {
     pub title: String,
-    pub head_nodes: Vec<Node>,
-    pub body_nodes: Vec<Node>,
+    pub head_nodes: Vec<HtmlNode>,
+    pub body_nodes: Vec<HtmlNode>,
 }
 
 pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document, Box<dyn error::Error>> {
@@ -63,7 +91,7 @@ pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document, Box<dyn 
     let body = document.body().expect(&ErrorMessages::not_found("body"));
 
     for body_node in &setup.body_nodes {
-        body.append_child(body_node).unwrap();
+        body.append_child(&body_node.to_node()).unwrap();
     }
 
     Ok(document)
@@ -73,21 +101,21 @@ pub fn create_element_with_text(
     tag_name: &str,
     class_name: &str,
     text_content: Option<&str>,
-) -> Result<web_sys::Element, Box<dyn error::Error>> {
+) -> Result<HtmlNode, Box<dyn error::Error>> {
     let element = create_element(tag_name)?;
     if class_name.len() > 0 {
         element.set_class_name(class_name);
     }
     element.set_text_content(text_content);
 
-    Ok(element)
+    Ok(HtmlNode::ElementNode(element))
 }
 
 pub fn create_element_with_children(
     tag_name: &str,
     class_name: &str,
-    child_elements: Vec<&Result<web_sys::Element, Box<dyn error::Error>>>,
-) -> Result<web_sys::Element, Box<dyn error::Error>> {
+    child_elements: Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
+) -> Result<HtmlNode, Box<dyn error::Error>> {
     let element = create_element(tag_name)?;
     if class_name.len() > 0 {
         element.set_class_name(class_name);
@@ -98,7 +126,7 @@ pub fn create_element_with_children(
         match child_element {
             Ok(child_element) => {
                 //append_child and confirm if operation is successful
-                match element.append_child(&web_sys::Node::from(child_element.to_owned())) {
+                match element.append_child(&child_element.to_node()) {
                     Ok(_) => {}
                     Err(error) => return Err(format!("{:?}", error).into()),
                 }
@@ -107,14 +135,5 @@ pub fn create_element_with_children(
         }
     }
 
-    Ok(element)
-}
-
-pub fn element_to_node(
-    element: Result<web_sys::Element, Box<dyn error::Error>>,
-) -> Result<web_sys::Node, Box<dyn error::Error>> {
-    match element {
-        Ok(e) => Ok(web_sys::Node::from(e)),
-        Err(error) => Err(format!("{:?}", error).into()),
-    }
+    Ok(HtmlNode::ElementNode(element))
 }

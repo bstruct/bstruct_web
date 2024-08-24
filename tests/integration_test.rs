@@ -1,6 +1,5 @@
 use bstruct_browser_base::document::{
-    create_element_with_children, create_element_with_text, element_to_node, initial_setup,
-    InitialSetup,
+    create_element_with_children, create_element_with_text, initial_setup, HtmlNode, InitialSetup,
 };
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
@@ -30,10 +29,8 @@ fn test_initial_setup_body_1_node() {
     }
 
     impl StructNodeTrait for Test1 {
-        fn render(&self) -> Result<web_sys::Node, Box<dyn std::error::Error>> {
-            let element = create_element_with_text("div", "", Some(&self.text_content));
-
-            element_to_node(element)
+        fn render(&self) -> Result<HtmlNode, Box<dyn std::error::Error>> {
+            create_element_with_text("div", "", Some(&self.text_content))
         }
     }
 
@@ -76,7 +73,7 @@ fn create_element_with_text_1() {
 
     assert!(node.is_ok());
 
-    assert_eq!("<span>text</span>", node.unwrap().outer_html());
+    assert_eq!("<span>text</span>", node.unwrap().to_element_node().unwrap().outer_html());
 }
 
 #[wasm_bindgen_test]
@@ -119,6 +116,6 @@ fn create_element_with_children_1() {
 
     assert_eq!(
         "<div class=\"class1\"><span class=\"class2\">some text</span></div>",
-        node.unwrap().outer_html()
+        node.unwrap().to_element_node().unwrap().outer_html()
     );
 }
