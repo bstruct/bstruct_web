@@ -5,7 +5,32 @@ use wasm_bindgen::prelude::*;
 
 // Change the alias to use `Box<dyn error::Error>`.
 use std::error;
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+// type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+
+#[wasm_bindgen]
+extern "C" {
+    // #[wasm_bindgen(js_namespace = document)]
+    // fn getElementsByTagName(qualifiedName: &str) -> Vec<Element>;
+
+    #[wasm_bindgen(catch, js_namespace = document, js_name = "createElement")]
+    fn internal_create_element(tag_name: &str) -> Result<web_sys::Element, JsValue>;
+    
+    // #[wasm_bindgen(js_namespace = document)]
+    // fn getElementById(elementId: &str) -> Option<Element>;
+
+    // //https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+    // #[wasm_bindgen(js_namespace = document, js_name = "observeElement")]
+    // fn observe_element(element: &Element);
+    // #[wasm_bindgen(js_namespace = document, js_name = "setState", catch)]
+    // fn set_state(state_json: &str) -> Result<(), JsValue>;
+}
+
+pub fn create_element(tag_name: &str) -> Result<web_sys::Element, Box<dyn error::Error>> {
+    match internal_create_element(tag_name) {
+        Ok(e) => Ok(e),
+        Err(error) => Err(format!("{:?}", error).into()),
+    }
+}
 
 pub struct InitialSetup {
     pub title: String,
@@ -13,7 +38,7 @@ pub struct InitialSetup {
     pub body_nodes: Vec<Node>,
 }
 
-pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document> {
+pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document, Box<dyn error::Error>> {
     let window = web_sys::window().expect(&ErrorMessages::not_found("window"));
     let document = window
         .document()
@@ -44,49 +69,43 @@ pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document> {
     Ok(document)
 }
 
-pub fn create_node_with_text(
+pub fn create_element_with_text(
     tag_name: &str,
     class_name: &str,
     text_content: Option<&str>,
-) -> Result<web_sys::Node> {
-    let element = create_element(tag_name);
+) -> Result<web_sys::Element, Box<dyn error::Error>> {
+    let element = create_element(tag_name)?;
     if class_name.len() > 0 {
         element.set_class_name(class_name);
     }
     element.set_text_content(text_content);
 
-    Ok(web_sys::Node::from(element))
+    Ok(element)
 }
 
-pub fn create_node_with_children(
+pub fn create_element_with_children(
     tag_name: &str,
     class_name: &str,
-    child_nodes: Vec<&Node>,
-) -> Result<web_sys::Node> {
-    let element = create_element(tag_name);
+    child_elements: Vec<&Result<web_sys::Element, Box<dyn error::Error>>>,
+) -> Result<web_sys::Element, Box<dyn error::Error>> {
+    let element = create_element(tag_name)?;
     if class_name.len() > 0 {
         element.set_class_name(class_name);
     }
 
-    for node in child_nodes {
-        element.append_child(node).unwrap();
+    for child_element in child_elements {
+        //check if creation of the element is ok
+        match child_element {
+            Ok(child_element) => {
+                //append_child and confirm if operation is successful
+                match element.append_child(&web_sys::Node::from(child_element.to_owned())) {
+                    Ok(_) => {}
+                    Err(error) => return Err(format!("{:?}", error).into()),
+                }
+            }
+            Err(error) => return Err(format!("{:?}", error).into()),
+        }
     }
 
-    Ok(web_sys::Node::from(element))
-}
-
-#[wasm_bindgen]
-extern "C" {
-    // #[wasm_bindgen(js_namespace = document)]
-    // fn getElementsByTagName(qualifiedName: &str) -> Vec<Element>;
-    #[wasm_bindgen(js_namespace = document, js_name = "createElement")]
-    pub fn create_element(tag_name: &str) -> web_sys::Element;
-    // #[wasm_bindgen(js_namespace = document)]
-    // fn getElementById(elementId: &str) -> Option<Element>;
-
-    // //https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
-    // #[wasm_bindgen(js_namespace = document, js_name = "observeElement")]
-    // fn observe_element(element: &Element);
-    // #[wasm_bindgen(js_namespace = document, js_name = "setState", catch)]
-    // fn set_state(state_json: &str) -> Result<(), JsValue>;
+    Ok(element)
 }
