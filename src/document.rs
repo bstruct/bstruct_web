@@ -137,3 +137,10 @@ pub fn create_element_with_children(
 
     Ok(HtmlNode::ElementNode(element))
 }
+
+pub fn handle_js_error<T>(result: Result<T, JsValue>) -> Result<T, Box<dyn error::Error>> {
+    match result {
+        Ok(e) => Ok(e),
+        Err(error) => Err(format!("{:?}", error).into()),
+    }
+}

@@ -1,5 +1,6 @@
 use bstruct_browser_base::document::{
-    create_element_with_children, create_element_with_text, initial_setup, HtmlNode, InitialSetup,
+    create_element_with_children, create_element_with_text, handle_js_error, initial_setup,
+    HtmlNode, InitialSetup,
 };
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
@@ -73,7 +74,10 @@ fn create_element_with_text_1() {
 
     assert!(node.is_ok());
 
-    assert_eq!("<span>text</span>", node.unwrap().to_element_node().unwrap().outer_html());
+    assert_eq!(
+        "<span>text</span>",
+        node.unwrap().to_element_node().unwrap().outer_html()
+    );
 }
 
 #[wasm_bindgen_test]
@@ -118,4 +122,16 @@ fn create_element_with_children_1() {
         "<div class=\"class1\"><span class=\"class2\">some text</span></div>",
         node.unwrap().to_element_node().unwrap().outer_html()
     );
+}
+
+#[wasm_bindgen_test]
+fn handle_js_error_1() {
+    let node = create_element_with_text("div", "class1", None).unwrap();
+    let node = node.to_element_node().unwrap();
+
+    let error = handle_js_error(node.set_attribute("", ""));
+
+    assert!(error.is_err());
+
+    assert!( error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
 }
