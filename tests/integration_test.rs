@@ -1,5 +1,6 @@
 use bstruct_browser_base::document::{
-    create_element_with_children, create_element_with_text, initial_setup, InitialSetup,
+    create_element_with_children, create_element_with_text, element_to_node, initial_setup,
+    InitialSetup,
 };
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
@@ -30,9 +31,9 @@ fn test_initial_setup_body_1_node() {
 
     impl StructNodeTrait for Test1 {
         fn render(&self) -> Result<web_sys::Node, Box<dyn std::error::Error>> {
-            let element = create_element_with_text("div", "", Some(&self.text_content))?;
+            let element = create_element_with_text("div", "", Some(&self.text_content));
 
-            Ok(web_sys::Node::from(element))
+            element_to_node(element)
         }
     }
 

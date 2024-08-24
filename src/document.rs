@@ -14,7 +14,7 @@ extern "C" {
 
     #[wasm_bindgen(catch, js_namespace = document, js_name = "createElement")]
     fn internal_create_element(tag_name: &str) -> Result<web_sys::Element, JsValue>;
-    
+
     // #[wasm_bindgen(js_namespace = document)]
     // fn getElementById(elementId: &str) -> Option<Element>;
 
@@ -108,4 +108,13 @@ pub fn create_element_with_children(
     }
 
     Ok(element)
+}
+
+pub fn element_to_node(
+    element: Result<web_sys::Element, Box<dyn error::Error>>,
+) -> Result<web_sys::Node, Box<dyn error::Error>> {
+    match element {
+        Ok(e) => Ok(web_sys::Node::from(e)),
+        Err(error) => Err(format!("{:?}", error).into()),
+    }
 }
