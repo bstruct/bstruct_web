@@ -23,6 +23,7 @@ features = [
     "Location",
     "ShadowRoot",
     "ShadowRootInit",
+    "ShadowRootMode",
     "Url",
     "Window",
     # "CustomElementRegistry",
@@ -33,7 +34,6 @@ features = [
     # "HtmlTemplateElement",
     # "MutationObserver"
     # "Node",
-    # "ShadowRootMode",
     # "SubmitEvent",
 ]          
 
