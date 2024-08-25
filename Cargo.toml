@@ -21,6 +21,8 @@ features = [
     "HtmlHeadElement",
     "Location",
     "Window",
+    "Event",
+    "Url"
     # "CustomElementRegistry",
     # "Element",
     # "HtmlFormElement",

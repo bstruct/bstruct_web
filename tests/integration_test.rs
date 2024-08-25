@@ -1,11 +1,12 @@
 use bstruct_browser_base::document::{
     create_element_with_children, create_element_with_text, handle_js_error, initial_setup, HtmlNode, InitialSetup
 };
-use bstruct_browser_base::navigation::set_onnavigate_event;
+use bstruct_browser_base::navigation::is_navigation_supported;
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
 use bstruct_browser_base::window::get_window_location;
 use wasm_bindgen_test::*;
+use web_sys::Event;
 
 wasm_bindgen_test_configure!(run_in_browser);
 
@@ -151,12 +152,24 @@ fn get_document_location_1() {
     
 }
 
-
 #[wasm_bindgen_test]
 fn set_onnavigate_event_1() {
-    
-    set_onnavigate_event();
 
-    
-    
+    let link = create_element_with_text("a", "", Some("text_content")).unwrap();
+    let element = link.to_element_node().unwrap();
+    element.set_attribute("href", "/test_this").unwrap();
+
+
+    let initial_setup_result = initial_setup(&InitialSetup {
+        title: String::from("this is my new title"),
+        head_nodes: vec![],
+        body_nodes: vec![link],
+    });
+
+    assert!(initial_setup_result.is_ok());
+    assert!(is_navigation_supported());
+
+    bstruct_browser_base::navigation::set_onnavigate_event();
+
+    element.dispatch_event(&Event::new("click").unwrap()).unwrap();    
 }
