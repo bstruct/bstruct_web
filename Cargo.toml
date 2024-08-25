@@ -18,6 +18,7 @@ features = [
     "Window",
     "Document",
     "DocumentFragment",
+    "Location",
     # "Node",
     # "Element",
     "HtmlElement",

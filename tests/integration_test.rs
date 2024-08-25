@@ -1,9 +1,9 @@
 use bstruct_browser_base::document::{
-    create_element_with_children, create_element_with_text, handle_js_error, initial_setup,
-    HtmlNode, InitialSetup,
+    create_element_with_children, create_element_with_text, handle_js_error, initial_setup, HtmlNode, InitialSetup
 };
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
+use bstruct_browser_base::window::get_window_location;
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -134,4 +134,18 @@ fn handle_js_error_1() {
     assert!(error.is_err());
 
     assert!( error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+}
+
+#[wasm_bindgen_test]
+fn get_document_location_1() {
+    let location = get_window_location().unwrap();
+
+    let path_name = location.pathname();
+
+    assert!(path_name.is_ok());
+
+    let path_name = path_name.unwrap();
+
+    assert_eq!("/", path_name);
+    
 }
