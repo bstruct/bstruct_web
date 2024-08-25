@@ -17,12 +17,14 @@ features = [
     "console",
     "Document",
     "DocumentFragment",
+    "Event",
     "HtmlElement",
     "HtmlHeadElement",
     "Location",
+    "ShadowRoot",
+    "ShadowRootInit",
+    "Url",
     "Window",
-    "Event",
-    "Url"
     # "CustomElementRegistry",
     # "Element",
     # "HtmlFormElement",
@@ -31,8 +33,6 @@ features = [
     # "HtmlTemplateElement",
     # "MutationObserver"
     # "Node",
-    # "ShadowRoot",
-    # "ShadowRootInit",
     # "ShadowRootMode",
     # "SubmitEvent",
 ]          
