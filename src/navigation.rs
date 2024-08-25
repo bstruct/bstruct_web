@@ -21,7 +21,7 @@ pub fn set_onnavigate_event() {
 
     let on_event_type_closure = Closure::wrap(Box::new(on_click) as Box<dyn Fn(&NavigateEvent)>);
 
-    navigation_add_event_listener("click", on_event_type_closure.as_ref().unchecked_ref()).unwrap();
+    navigation_add_event_listener("navigate", on_event_type_closure.as_ref().unchecked_ref()).unwrap();
 
     on_event_type_closure.forget();
 }
