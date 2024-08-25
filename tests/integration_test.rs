@@ -1,6 +1,7 @@
 use bstruct_browser_base::document::{
     create_element_with_children, create_element_with_text, handle_js_error, initial_setup, HtmlNode, InitialSetup
 };
+use bstruct_browser_base::navigation::set_onnavigate_event;
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
 use bstruct_browser_base::window::get_window_location;
@@ -147,5 +148,15 @@ fn get_document_location_1() {
     let path_name = path_name.unwrap();
 
     assert_eq!("/", path_name);
+    
+}
+
+
+#[wasm_bindgen_test]
+fn set_onnavigate_event_1() {
+    
+    set_onnavigate_event();
+
+    
     
 }

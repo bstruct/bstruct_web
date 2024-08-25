@@ -15,24 +15,24 @@ version = "0.3.64"
 
 features = [
     "console",
-    "Window",
     "Document",
     "DocumentFragment",
-    "Location",
-    # "Node",
-    # "Element",
     "HtmlElement",
     "HtmlHeadElement",
+    "Location",
+    "Window",
+    # "CustomElementRegistry",
+    # "Element",
     # "HtmlFormElement",
     # "HtmlInputElement",
     # "HtmlSlotElement",
     # "HtmlTemplateElement",
-    # "CustomElementRegistry",
+    # "MutationObserver"
+    # "Node",
     # "ShadowRoot",
     # "ShadowRootInit",
     # "ShadowRootMode",
     # "SubmitEvent",
-    # "MutationObserver"
 ]          
 
 [dev-dependencies]
