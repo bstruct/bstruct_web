@@ -39,7 +39,7 @@ impl HtmlNode {
         } else {
             web_sys::ShadowRootInit::new(web_sys::ShadowRootMode::Closed)
         };
-        
+
         let element = self.to_element_node()?;
         let shadow = handle_js_error(element.attach_shadow(&shadow_init))?;
 
@@ -49,10 +49,10 @@ impl HtmlNode {
     #[doc = "Set attribute of ElementNode's. If HtmlNode doesn't support set attribute, the function will return an error."]
     #[doc = "Returns the same element to facilitate the functional programming pattern."]
     pub fn set_attribute(
-        self,
+        &self,
         name: &str,
         value: &str,
-    ) -> Result<HtmlNode, Box<dyn error::Error>> {
+    ) -> Result<&HtmlNode, Box<dyn error::Error>> {
         let element = self.to_element_node()?;
         handle_js_error(element.set_attribute(name, value))?;
 
