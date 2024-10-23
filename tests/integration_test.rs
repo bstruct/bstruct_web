@@ -138,6 +138,46 @@ fn create_element_fn_1() {
 }
 
 #[wasm_bindgen_test]
+fn create_element_fn_2() {
+    let node = create_element_fn(
+        "div",
+        |e| 
+            e
+                .attach_shadow(true)?
+                .append_children(vec![
+                    &create_element_with_text("tag_name", "class_name", Some("text_content"))
+                ])
+    );
+
+    assert!(node.is_ok());
+    assert_eq!(
+        "<div></div>",
+        node.unwrap().to_element_node().unwrap().outer_html()
+    );
+}
+
+#[wasm_bindgen_test]
+fn create_element_fn_3() {
+    let node = create_element_fn(
+        "div",
+        |e| 
+            e
+                .append_children(vec![
+                    &create_element_with_text("tag_name1", "class_name1", Some("text_content1")),
+                    &create_element_with_text("tag_name2", "class_name2", Some("text_content2")),
+                    &create_element_with_text("tag_name3", "class_name3", Some("text_content3")),
+                    &create_element_with_text("tag_name4", "class_name4", Some("text_content4")),
+                ])
+    );
+
+    assert!(node.is_ok());
+    assert_eq!(
+        "<div><tag_name1 class=\"class_name1\">text_content1</tag_name1><tag_name2 class=\"class_name2\">text_content2</tag_name2><tag_name3 class=\"class_name3\">text_content3</tag_name3><tag_name4 class=\"class_name4\">text_content4</tag_name4></div>",
+        node.unwrap().to_element_node().unwrap().outer_html()
+    );
+}
+
+#[wasm_bindgen_test]
 fn create_element_with_children_1() {
     let node = create_element_with_children(
         "div",

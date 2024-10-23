@@ -63,12 +63,12 @@ impl HtmlNode {
     pub fn append_children(
         &self,
         child_elements: Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
-    ) -> Result<&HtmlNode, Box<dyn error::Error>> {
+    ) -> Result<HtmlNode, Box<dyn error::Error>> {
         let node = self.to_node()?;
 
         append_children(&node, &child_elements)?;
 
-        Ok(&self)
+        Ok(self.clone())
     }
 }
 
