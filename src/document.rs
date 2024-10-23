@@ -111,6 +111,19 @@ pub fn create_element_with_text(
     Ok(HtmlNode::ElementNode(element))
 }
 
+pub fn create_element_with_text_fn(
+    tag_name: &str,
+    class_name: &str,
+    text_content: Option<&str>,
+    element_fn: &dyn Fn(&HtmlNode) -> Result<(), Box<dyn error::Error>>,
+) -> Result<HtmlNode, Box<dyn error::Error>> {
+    let element = create_element_with_text(tag_name, class_name, text_content)?;
+
+    let _ = &element_fn(&element)?;
+
+    Ok(element)
+}
+
 pub fn create_element_with_children(
     tag_name: &str,
     class_name: &str,
