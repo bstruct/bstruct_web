@@ -119,7 +119,7 @@ pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document, Box<dyn 
     let body = document.body().expect(&ErrorMessages::not_found("body"));
 
     for body_node in &setup.body_nodes {
-        body.append_child(&body_node.to_node()).unwrap();
+        body.append_child(&body_node.to_node()?).unwrap();
     }
 
     Ok(document)
