@@ -29,6 +29,22 @@ impl HtmlNode {
             _ => Err("node is not an element node".into()),
         }
     }
+
+    pub fn attach_shadow(
+        &self,
+        open: bool,
+    ) -> std::result::Result<HtmlNode, Box<dyn error::Error>> {
+        let shadow_init = if open {
+            web_sys::ShadowRootInit::new(web_sys::ShadowRootMode::Open)
+        } else {
+            web_sys::ShadowRootInit::new(web_sys::ShadowRootMode::Closed)
+        };
+
+        let element = self.to_element_node()?;
+        let shadow = handle_js_error(element.attach_shadow(&shadow_init))?;
+
+        Ok(HtmlNode::DocumentFragmentNode(shadow.into()))
+    }
 }
 
 // Change the alias to use `Box<dyn error::Error>`.
