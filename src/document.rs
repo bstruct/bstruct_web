@@ -2,7 +2,7 @@ use crate::error_messages::ErrorMessages;
 use wasm_bindgen::prelude::*;
 
 //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum HtmlNode {
     ElementNode(web_sys::Element),
     // AttributeNode,
@@ -39,7 +39,7 @@ impl HtmlNode {
         } else {
             web_sys::ShadowRootInit::new(web_sys::ShadowRootMode::Closed)
         };
-
+        
         let element = self.to_element_node()?;
         let shadow = handle_js_error(element.attach_shadow(&shadow_init))?;
 
