@@ -46,6 +46,19 @@ impl HtmlNode {
         Ok(HtmlNode::DocumentFragmentNode(shadow.into()))
     }
 
+    #[doc = "Set attribute of ElementNode's. If HtmlNode doesn't support set attribute, the function will return an error."]
+    #[doc = "Returns the same element to facilitate the functional programming pattern."]
+    pub fn set_attribute(
+        &self,
+        name: &str,
+        value: &str,
+    ) -> Result<&HtmlNode, Box<dyn error::Error>> {
+        let element = self.to_element_node()?;
+        handle_js_error(element.set_attribute(name, value))?;
+
+        Ok(self)
+    }
+
     #[doc = "Append children to node and return the original node"]
     pub fn append_children(
         &self,
