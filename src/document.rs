@@ -16,10 +16,10 @@ pub enum HtmlNode {
 }
 
 impl HtmlNode {
-    pub fn to_node(&self) -> web_sys::Node {
+    pub fn to_node(&self) -> std::result::Result<web_sys::Node, Box<dyn error::Error>> {
         match &self {
-            HtmlNode::ElementNode(element) => web_sys::Node::from(element.to_owned()),
-            HtmlNode::DocumentFragmentNode(element) => web_sys::Node::from(element.to_owned()),
+            HtmlNode::ElementNode(element) => Ok(web_sys::Node::from(element.to_owned())),
+            HtmlNode::DocumentFragmentNode(element) => Ok(web_sys::Node::from(element.to_owned())),
         }
     }
 
@@ -44,6 +44,18 @@ impl HtmlNode {
         let shadow = handle_js_error(element.attach_shadow(&shadow_init))?;
 
         Ok(HtmlNode::DocumentFragmentNode(shadow.into()))
+    }
+
+    #[doc = "Append children to node and return the original node"]
+    pub fn append_children(
+        &self,
+        child_elements: Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
+    ) -> Result<&HtmlNode, Box<dyn error::Error>> {
+        let node = self.to_node()?;
+
+        append_children(&node, &child_elements)?;
+
+        Ok(self)
     }
 }
 
@@ -150,12 +162,34 @@ pub fn create_element_with_children(
         element.set_class_name(class_name);
     }
 
+    // for child_element in child_elements {
+    //     //check if creation of the element is ok
+    //     match child_element {
+    //         Ok(child_element) => {
+    //             //append_child and confirm if operation is successful
+    //             match element.append_child(&child_element.to_node()) {
+    //                 Ok(_) => {}
+    //                 Err(error) => return Err(format!("{:?}", error).into()),
+    //             }
+    //         }
+    //         Err(error) => return Err(format!("{:?}", error).into()),
+    //     }
+    // }
+    append_children(&element, &child_elements)?;
+
+    Ok(HtmlNode::ElementNode(element))
+}
+
+fn append_children(
+    element: &web_sys::Node,
+    child_elements: &Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
+) -> Result<(), Box<dyn error::Error>> {
     for child_element in child_elements {
         //check if creation of the element is ok
         match child_element {
             Ok(child_element) => {
                 //append_child and confirm if operation is successful
-                match element.append_child(&child_element.to_node()) {
+                match element.append_child(&child_element.to_node()?) {
                     Ok(_) => {}
                     Err(error) => return Err(format!("{:?}", error).into()),
                 }
@@ -164,7 +198,7 @@ pub fn create_element_with_children(
         }
     }
 
-    Ok(HtmlNode::ElementNode(element))
+    Ok(())
 }
 
 pub fn handle_js_error<T>(result: Result<T, JsValue>) -> Result<T, Box<dyn error::Error>> {
