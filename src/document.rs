@@ -52,23 +52,23 @@ impl HtmlNode {
         &self,
         name: &str,
         value: &str,
-    ) -> Result<&HtmlNode, Box<dyn error::Error>> {
+    ) -> Result<HtmlNode, Box<dyn error::Error>> {
         let element = self.to_element_node()?;
         handle_js_error(element.set_attribute(name, value))?;
 
-        Ok(self)
+        Ok(self.clone())
     }
 
     #[doc = "Append children to node and return the original node"]
     pub fn append_children(
-        self,
+        &self,
         child_elements: Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
-    ) -> Result<HtmlNode, Box<dyn error::Error>> {
+    ) -> Result<&HtmlNode, Box<dyn error::Error>> {
         let node = self.to_node()?;
 
         append_children(&node, &child_elements)?;
 
-        Ok(self)
+        Ok(&self)
     }
 }
 
@@ -173,19 +173,6 @@ pub fn create_element_with_children(
         element.set_class_name(class_name);
     }
 
-    // for child_element in child_elements {
-    //     //check if creation of the element is ok
-    //     match child_element {
-    //         Ok(child_element) => {
-    //             //append_child and confirm if operation is successful
-    //             match element.append_child(&child_element.to_node()) {
-    //                 Ok(_) => {}
-    //                 Err(error) => return Err(format!("{:?}", error).into()),
-    //             }
-    //         }
-    //         Err(error) => return Err(format!("{:?}", error).into()),
-    //     }
-    // }
     append_children(&element, &child_elements)?;
 
     Ok(HtmlNode::ElementNode(element))

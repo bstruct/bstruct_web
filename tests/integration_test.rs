@@ -1,5 +1,5 @@
 use bstruct_browser_base::document::{
-    create_element_with_children, create_element_with_text, handle_js_error, initial_setup, HtmlNode, InitialSetup
+    create_element_fn, create_element_with_children, create_element_with_text, handle_js_error, initial_setup, HtmlNode, InitialSetup
 };
 use bstruct_browser_base::navigation::is_navigation_supported;
 use bstruct_browser_base::struct_node::StructNodeTrait;
@@ -104,6 +104,37 @@ fn create_element_with_children_error_2() {
 
     let error = node.unwrap_err();
     assert!(error.to_string().contains("InvalidCharacterError: Failed to execute 'createElement' on 'Document': The tag name provided ('') is not a valid name."));
+}
+
+#[wasm_bindgen_test]
+fn create_element_fn_error_1() {
+    let node = create_element_fn(
+        "div",
+        |e| e.set_attribute("",""),
+    );
+
+    assert!(node.is_err());
+
+    let error = node.unwrap_err();
+    assert!(error.to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+}
+
+#[wasm_bindgen_test]
+fn create_element_fn_1() {
+    let node = create_element_fn(
+        "div",
+        |e| 
+            e
+                .set_attribute("class","x")?
+                .set_attribute("name", "value")
+            ,
+    );
+
+    assert!(node.is_ok());
+    assert_eq!(
+        "<div class=\"x\" name=\"value\"></div>",
+        node.unwrap().to_element_node().unwrap().outer_html()
+    );
 }
 
 #[wasm_bindgen_test]
