@@ -72,33 +72,23 @@ impl HtmlNode {
     }
 }
 
-// Change the alias to use `Box<dyn error::Error>`.
 use std::error;
-// type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 #[wasm_bindgen]
 extern "C" {
-    // #[wasm_bindgen(js_namespace = document)]
-    // fn getElementsByTagName(qualifiedName: &str) -> Vec<Element>;
-
     #[wasm_bindgen(catch, js_namespace = document, js_name = "createElement")]
     fn internal_create_element(tag_name: &str) -> Result<web_sys::Element, JsValue>;
 
-    // #[wasm_bindgen(js_namespace = document)]
-    // fn getElementById(elementId: &str) -> Option<Element>;
-
-    // //https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
-    // #[wasm_bindgen(js_namespace = document, js_name = "observeElement")]
-    // fn observe_element(element: &Element);
-    // #[wasm_bindgen(js_namespace = document, js_name = "setState", catch)]
-    // fn set_state(state_json: &str) -> Result<(), JsValue>;
+    #[wasm_bindgen(catch, js_namespace = document, js_name = "getElementById")]
+    fn internal_get_element_by_id(id: &str) -> Result<Option<web_sys::Element>, JsValue>;
 }
 
 pub fn create_element(tag_name: &str) -> Result<web_sys::Element, Box<dyn error::Error>> {
-    match internal_create_element(tag_name) {
-        Ok(e) => Ok(e),
-        Err(error) => Err(format!("{:?}", error).into()),
-    }
+    handle_js_error(internal_create_element(tag_name))
+}
+
+pub fn get_element_by_id(id: &str) -> Result<Option<web_sys::Element>, Box<dyn error::Error>> {
+    handle_js_error(internal_get_element_by_id(id))
 }
 
 pub struct InitialSetup {
