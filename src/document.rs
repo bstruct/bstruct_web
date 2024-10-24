@@ -59,14 +59,23 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
+    pub fn set_attributes(
+        &self,
+        attributes: Vec<[&str; 2]>,
+    ) -> Result<HtmlNode, Box<dyn error::Error>> {
+        for attribute in attributes {
+            self.set_attribute(attribute[0], attribute[1])?;
+        }
+
+        Ok(self.clone())
+    }
+
     #[doc = "Append children to node and return the original node"]
     pub fn append_children(
         &self,
         child_elements: Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
     ) -> Result<HtmlNode, Box<dyn error::Error>> {
-        let node = self.to_node()?;
-
-        append_children(&node, &child_elements)?;
+        append_children(self, &child_elements)?;
 
         Ok(self.clone())
     }
@@ -83,12 +92,18 @@ extern "C" {
     fn internal_get_element_by_id(id: &str) -> Result<Option<web_sys::Element>, JsValue>;
 }
 
-pub fn create_element(tag_name: &str) -> Result<web_sys::Element, Box<dyn error::Error>> {
-    handle_js_error(internal_create_element(tag_name))
+pub fn create_element(tag_name: &str) -> Result<HtmlNode, Box<dyn error::Error>> {
+    let element = handle_js_error(internal_create_element(tag_name))?;
+    Ok(HtmlNode::ElementNode(element))
 }
 
-pub fn get_element_by_id(id: &str) -> Result<Option<web_sys::Element>, Box<dyn error::Error>> {
-    handle_js_error(internal_get_element_by_id(id))
+pub fn get_element_by_id(id: &str) -> Result<Option<HtmlNode>, Box<dyn error::Error>> {
+    let element = handle_js_error(internal_get_element_by_id(id))?;
+    if let Some(element) = element {
+        Ok(Some(HtmlNode::ElementNode(element)))
+    } else {
+        Ok(None)
+    }
 }
 
 pub struct InitialSetup {
@@ -133,7 +148,8 @@ pub fn create_element_with_text(
     class_name: &str,
     text_content: Option<&str>,
 ) -> Result<HtmlNode, Box<dyn error::Error>> {
-    let element = create_element(tag_name)?;
+    let element = handle_js_error(internal_create_element(tag_name))?;
+
     if class_name.len() > 0 {
         element.set_class_name(class_name);
     }
@@ -146,8 +162,7 @@ pub fn create_element_fn(
     tag_name: &str,
     element_fn: impl Fn(&HtmlNode) -> Result<HtmlNode, Box<dyn error::Error>>,
 ) -> Result<HtmlNode, Box<dyn error::Error>> {
-    let element = create_element(tag_name)?;
-    let html_node = HtmlNode::ElementNode(element);
+    let html_node = create_element(tag_name)?;
     element_fn(&html_node)?;
 
     Ok(html_node)
@@ -160,25 +175,29 @@ pub fn create_element_with_children(
 ) -> Result<HtmlNode, Box<dyn error::Error>> {
     let element = create_element(tag_name)?;
     if class_name.len() > 0 {
-        element.set_class_name(class_name);
+        element.set_attribute("class", class_name)?;
     }
 
     append_children(&element, &child_elements)?;
 
-    Ok(HtmlNode::ElementNode(element))
+    Ok(element)
 }
 
 fn append_children(
-    element: &web_sys::Node,
+    element: &HtmlNode,
     child_elements: &Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
 ) -> Result<(), Box<dyn error::Error>> {
+    let node = element.to_node()?;
+
     for child_element in child_elements {
         //check if creation of the element is ok
         match child_element {
             Ok(child_element) => {
                 //append_child and confirm if operation is successful
-                match element.append_child(&child_element.to_node()?) {
-                    Ok(_) => {}
+                match &child_element.to_node() {
+                    Ok(child) => {
+                        handle_js_error(node.append_child(child))?;
+                    }
                     Err(error) => return Err(format!("{:?}", error).into()),
                 }
             }

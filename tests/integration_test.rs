@@ -120,6 +120,43 @@ fn create_element_fn_error_1() {
 }
 
 #[wasm_bindgen_test]
+fn set_attributes_error_1() {
+    let node = create_element_fn(
+        "div",
+        |e| e.set_attributes(
+            vec![
+                ["att1", ""],
+                ["", ""]
+            ]
+        ),
+    );
+
+    assert!(node.is_err());
+
+    let error = node.unwrap_err();
+    assert!(error.to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+}
+
+#[wasm_bindgen_test]
+fn set_attributes_1() {
+    let node = create_element_fn(
+        "div",
+        |e| e.set_attributes(
+            vec![
+                ["att1", "value1"],
+                ["att2", ""]
+            ]
+        ),
+    );
+
+    assert!(node.is_ok());
+    assert_eq!(
+        "<div att1=\"value1\" att2=\"\"></div>",
+        node.unwrap().to_element_node().unwrap().outer_html()
+    );
+}
+
+#[wasm_bindgen_test]
 fn create_element_fn_1() {
     let node = create_element_fn(
         "div",
