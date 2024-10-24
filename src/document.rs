@@ -81,6 +81,20 @@ impl HtmlNode {
     }
 }
 
+pub trait ResultJs {
+    fn to_result_js(&self) -> Result<HtmlNode, JsError> ;
+}
+
+impl ResultJs for std::result::Result<HtmlNode, Box<dyn error::Error>> {
+    fn to_result_js(&self) -> Result<HtmlNode, JsError> {
+        if self.is_ok() {
+            Ok(self.as_ref().unwrap().clone())
+        } else {
+            Err(JsError::new(&self.as_ref().unwrap_err().to_string()))
+        }
+    }
+}
+
 use std::error;
 
 #[wasm_bindgen]

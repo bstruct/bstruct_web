@@ -1,10 +1,12 @@
 use bstruct_browser_base::document::{
-    create_element_fn, create_element_with_children, create_element_with_text, handle_js_error, initial_setup, HtmlNode, InitialSetup
+    create_element_fn, create_element_with_children, create_element_with_text, handle_js_error,
+    initial_setup, HtmlNode, InitialSetup, ResultJs,
 };
 use bstruct_browser_base::navigation::is_navigation_supported;
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
 use bstruct_browser_base::window::get_window_location;
+use wasm_bindgen::JsValue;
 use wasm_bindgen_test::*;
 use web_sys::Event;
 
@@ -108,10 +110,7 @@ fn create_element_with_children_error_2() {
 
 #[wasm_bindgen_test]
 fn create_element_fn_error_1() {
-    let node = create_element_fn(
-        "div",
-        |e| e.set_attribute("",""),
-    );
+    let node = create_element_fn("div", |e| e.set_attribute("", ""));
 
     assert!(node.is_err());
 
@@ -121,15 +120,7 @@ fn create_element_fn_error_1() {
 
 #[wasm_bindgen_test]
 fn set_attributes_error_1() {
-    let node = create_element_fn(
-        "div",
-        |e| e.set_attributes(
-            vec![
-                ["att1", ""],
-                ["", ""]
-            ]
-        ),
-    );
+    let node = create_element_fn("div", |e| e.set_attributes(vec![["att1", ""], ["", ""]]));
 
     assert!(node.is_err());
 
@@ -139,15 +130,9 @@ fn set_attributes_error_1() {
 
 #[wasm_bindgen_test]
 fn set_attributes_1() {
-    let node = create_element_fn(
-        "div",
-        |e| e.set_attributes(
-            vec![
-                ["att1", "value1"],
-                ["att2", ""]
-            ]
-        ),
-    );
+    let node = create_element_fn("div", |e| {
+        e.set_attributes(vec![["att1", "value1"], ["att2", ""]])
+    });
 
     assert!(node.is_ok());
     assert_eq!(
@@ -158,14 +143,10 @@ fn set_attributes_1() {
 
 #[wasm_bindgen_test]
 fn create_element_fn_1() {
-    let node = create_element_fn(
-        "div",
-        |e| 
-            e
-                .set_attribute("class","x")?
-                .set_attribute("name", "value")
-            ,
-    );
+    let node = create_element_fn("div", |e| {
+        e.set_attribute("class", "x")?
+            .set_attribute("name", "value")
+    });
 
     assert!(node.is_ok());
     assert_eq!(
@@ -176,15 +157,14 @@ fn create_element_fn_1() {
 
 #[wasm_bindgen_test]
 fn create_element_fn_2() {
-    let node = create_element_fn(
-        "div",
-        |e| 
-            e
-                .attach_shadow(true)?
-                .append_children(vec![
-                    &create_element_with_text("tag_name", "class_name", Some("text_content"))
-                ])
-    );
+    let node = create_element_fn("div", |e| {
+        e.attach_shadow(true)?
+            .append_children(vec![&create_element_with_text(
+                "tag_name",
+                "class_name",
+                Some("text_content"),
+            )])
+    });
 
     assert!(node.is_ok());
     assert_eq!(
@@ -195,17 +175,14 @@ fn create_element_fn_2() {
 
 #[wasm_bindgen_test]
 fn create_element_fn_3() {
-    let node = create_element_fn(
-        "div",
-        |e| 
-            e
-                .append_children(vec![
-                    &create_element_with_text("tag_name1", "class_name1", Some("text_content1")),
-                    &create_element_with_text("tag_name2", "class_name2", Some("text_content2")),
-                    &create_element_with_text("tag_name3", "class_name3", Some("text_content3")),
-                    &create_element_with_text("tag_name4", "class_name4", Some("text_content4")),
-                ])
-    );
+    let node = create_element_fn("div", |e| {
+        e.append_children(vec![
+            &create_element_with_text("tag_name1", "class_name1", Some("text_content1")),
+            &create_element_with_text("tag_name2", "class_name2", Some("text_content2")),
+            &create_element_with_text("tag_name3", "class_name3", Some("text_content3")),
+            &create_element_with_text("tag_name4", "class_name4", Some("text_content4")),
+        ])
+    });
 
     assert!(node.is_ok());
     assert_eq!(
@@ -235,6 +212,35 @@ fn create_element_with_children_1() {
 }
 
 #[wasm_bindgen_test]
+fn to_result_js_1() {
+    let node = create_element_with_children(
+        "div",
+        "class1",
+        vec![&create_element_with_text(
+            "span",
+            "class2",
+            Some("some text"),
+        )],
+    );
+
+    let new_node = node.to_result_js();
+
+    assert!(new_node.is_ok());
+}
+
+#[wasm_bindgen_test]
+fn to_result_js_error_1() {
+    let node = create_element_with_children("div", "class1", vec![]).unwrap();
+
+    let att = node.set_attribute("", "value").to_result_js();
+
+    assert!(att.is_err());
+
+    let error = format!("{:?}", att.unwrap_err());
+    assert!(error.contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+}
+
+#[wasm_bindgen_test]
 fn handle_js_error_1() {
     let node = create_element_with_text("div", "class1", None).unwrap();
     let node = node.to_element_node().unwrap();
@@ -257,16 +263,13 @@ fn get_document_location_1() {
     let path_name = path_name.unwrap();
 
     assert_eq!("/", path_name);
-    
 }
 
 #[wasm_bindgen_test]
 fn set_onnavigate_event_1() {
-
     let link = create_element_with_text("a", "", Some("text_content")).unwrap();
     let element = link.to_element_node().unwrap();
     element.set_attribute("href", "/test_this").unwrap();
-
 
     let initial_setup_result = initial_setup(&InitialSetup {
         title: String::from("this is my new title"),
@@ -279,5 +282,7 @@ fn set_onnavigate_event_1() {
 
     bstruct_browser_base::navigation::set_onnavigate_event();
 
-    element.dispatch_event(&Event::new("click").unwrap()).unwrap();    
+    element
+        .dispatch_event(&Event::new("click").unwrap())
+        .unwrap();
 }
