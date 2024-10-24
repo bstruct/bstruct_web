@@ -26,6 +26,13 @@ features = [
     "ShadowRootMode",
     "Url",
     "Window",
+
+    "Headers",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
+    
     # "CustomElementRegistry",
     # "Element",
     # "HtmlFormElement",
