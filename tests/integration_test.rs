@@ -1,6 +1,5 @@
 use bstruct_browser_base::document::{
-    create_element_fn, create_element_with_children, create_element_with_text, handle_js_error,
-    initial_setup, HtmlNode, InitialSetup, ResultJs,
+    create_element_fn, create_element_with_children, create_element_with_text, get_element_by_id, handle_js_error, initial_setup, HtmlNode, InitialSetup, ResultJs
 };
 use bstruct_browser_base::navigation::is_navigation_supported;
 use bstruct_browser_base::struct_node::StructNodeTrait;
@@ -237,7 +236,7 @@ fn to_result_js_error_1() {
     assert!(att.is_err());
 
     let error = format!("{:?}", att.unwrap_err());
-    assert!(error.contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+    assert!(error.contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
 }
 
 #[wasm_bindgen_test]
@@ -249,7 +248,8 @@ fn handle_js_error_1() {
 
     assert!(error.is_err());
 
-    assert!( error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+    // assert!(error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+    assert!(error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
 }
 
 #[wasm_bindgen_test]

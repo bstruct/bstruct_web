@@ -81,12 +81,15 @@ impl HtmlNode {
     }
 }
 
-pub trait ResultJs {
-    fn to_result_js(&self) -> Result<HtmlNode, JsError> ;
+pub trait ResultJs<T: std::clone::Clone> {
+    fn to_result_js(&self) -> Result<T, JsError>;
 }
 
-impl ResultJs for std::result::Result<HtmlNode, Box<dyn error::Error>> {
-    fn to_result_js(&self) -> Result<HtmlNode, JsError> {
+impl<T> ResultJs<T> for std::result::Result<T, Box<dyn error::Error>>
+where
+    T: std::clone::Clone + std::fmt::Debug,
+{
+    fn to_result_js(&self) -> Result<T, JsError> {
         if self.is_ok() {
             Ok(self.as_ref().unwrap().clone())
         } else {
@@ -102,8 +105,8 @@ extern "C" {
     #[wasm_bindgen(catch, js_namespace = document, js_name = "createElement")]
     fn internal_create_element(tag_name: &str) -> Result<web_sys::Element, JsValue>;
 
-    #[wasm_bindgen(catch, js_namespace = document, js_name = "getElementById")]
-    fn internal_get_element_by_id(id: &str) -> Result<Option<web_sys::Element>, JsValue>;
+    #[wasm_bindgen(js_namespace = document, js_name = "getElementById")]
+    fn internal_get_element_by_id(id: &str) -> Option<web_sys::Element>;
 }
 
 pub fn create_element(tag_name: &str) -> Result<HtmlNode, Box<dyn error::Error>> {
@@ -112,7 +115,7 @@ pub fn create_element(tag_name: &str) -> Result<HtmlNode, Box<dyn error::Error>>
 }
 
 pub fn get_element_by_id(id: &str) -> Result<Option<HtmlNode>, Box<dyn error::Error>> {
-    let element = handle_js_error(internal_get_element_by_id(id))?;
+    let element = internal_get_element_by_id(id);
     if let Some(element) = element {
         Ok(Some(HtmlNode::ElementNode(element)))
     } else {
