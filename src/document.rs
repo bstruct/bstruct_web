@@ -114,12 +114,12 @@ pub fn create_element(tag_name: &str) -> Result<HtmlNode, Box<dyn error::Error>>
     Ok(HtmlNode::ElementNode(element))
 }
 
-pub fn get_element_by_id(id: &str) -> Result<Option<HtmlNode>, Box<dyn error::Error>> {
+pub fn get_element_by_id(id: &str) -> Option<HtmlNode> {
     let element = internal_get_element_by_id(id);
     if let Some(element) = element {
-        Ok(Some(HtmlNode::ElementNode(element)))
+        Some(HtmlNode::ElementNode(element))
     } else {
-        Ok(None)
+        None
     }
 }
 
