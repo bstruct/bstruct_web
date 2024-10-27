@@ -1,4 +1,4 @@
-use bstruct_browser_base::api_call::{ApiCallRequest, Method};
+use bstruct_browser_base::api_call::ApiCallRequest;
 use wasm_bindgen_test::wasm_bindgen_test;
 use web_sys::Blob;
 
@@ -6,7 +6,7 @@ use web_sys::Blob;
 async fn make_api_call_get_1() {
     let response = ApiCallRequest::new(
         "https://fake-json-api.mock.beeceptor.com/users",
-        Method::GET,
+        "GET",
         vec![
             ["Accept", "*/*"],
             //https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin

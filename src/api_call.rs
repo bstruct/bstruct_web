@@ -2,23 +2,8 @@ use std::error;
 
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::console;
 
 use crate::document::handle_js_error;
-
-pub enum Method {
-    GET,
-    POST,
-}
-
-impl Method {
-    fn as_str(&self) -> &'static str {
-        match self {
-            Method::GET => "GET",
-            Method::POST => "POST",
-        }
-    }
-}
 
 pub struct ApiCallRequest<'a> {
     url: &'a str,
@@ -28,24 +13,26 @@ pub struct ApiCallRequest<'a> {
 }
 
 impl<'b> ApiCallRequest<'b> {
+
     pub fn new(
         url: &'b str,
-        method: Method,
+        method: &'b str,
         headers: Vec<[&'b str; 2]>,
         body: Option<&'b JsValue>,
     ) -> ApiCallRequest<'b> {
         ApiCallRequest {
             url: url,
-            method: method.as_str(),
+            method: method,
             headers: headers,
             body: body,
         }
     }
 
+    #[doc = "Make an API call using the fetch browser function"]
     pub async fn make_api_call(&self) -> Result<web_sys::Response, Box<dyn error::Error>> {
         let request_init = web_sys::RequestInit::new();
         request_init.set_method(self.method);
-        request_init.set_mode(web_sys::RequestMode::Cors);
+        // request_init.set_mode(web_sys::RequestMode::Cors);
 
         let headers = handle_js_error(web_sys::Headers::new())?;
         for header in &self.headers {
