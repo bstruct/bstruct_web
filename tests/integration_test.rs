@@ -5,7 +5,6 @@ use bstruct_browser_base::navigation::is_navigation_supported;
 use bstruct_browser_base::struct_node::StructNodeTrait;
 
 use bstruct_browser_base::window::get_window_location;
-use wasm_bindgen::JsValue;
 use wasm_bindgen_test::*;
 use web_sys::Event;
 
