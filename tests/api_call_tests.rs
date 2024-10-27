@@ -1,9 +1,6 @@
 use bstruct_browser_base::api_call::{ApiCallRequest, Method};
-use wasm_bindgen::JsValue;
-use wasm_bindgen_test::{wasm_bindgen_test, wasm_bindgen_test_configure};
-use web_sys::{console, Blob};
-
-wasm_bindgen_test_configure!(run_in_browser);
+use wasm_bindgen_test::wasm_bindgen_test;
+use web_sys::Blob;
 
 #[wasm_bindgen_test]
 async fn make_api_call_get_1() {
@@ -21,8 +18,6 @@ async fn make_api_call_get_1() {
     )
     .make_api_call()
     .await;
-
-    // console::info_1(&JsValue::from(format!("{:?}", response)));
 
     assert!(response.is_ok());
 

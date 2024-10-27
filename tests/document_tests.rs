@@ -8,7 +8,7 @@ use bstruct_browser_base::window::get_window_location;
 use wasm_bindgen_test::*;
 use web_sys::Event;
 
-wasm_bindgen_test_configure!(run_in_browser);
+// wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
 fn test_initial_setup_title() {
@@ -58,6 +58,32 @@ fn test_initial_setup_body_1_node() {
         .unwrap()
         .outer_html()
         .contains("<div>my content is amazing</div>"));
+}
+
+#[wasm_bindgen_test]
+fn get_element_by_id_1() {
+    let node = get_element_by_id("");
+
+    assert!(node.is_none());
+}
+
+#[wasm_bindgen_test]
+fn get_element_by_id_2() {
+    let node = create_element_with_text("div", "", None).unwrap()
+    .set_attribute("id", "get_element_by_id_2")
+    .unwrap();
+
+    // Document::new().unwrap().append_child(&node.to_node().unwrap()).unwrap();
+    let window = web_sys::window().unwrap();
+    let document = window
+        .document()
+        .unwrap();
+    let body = document.body().unwrap();
+    body.append_child(&node.to_node().unwrap()).unwrap();
+
+    let node = get_element_by_id("get_element_by_id_2");
+
+    assert!(node.is_some());
 }
 
 #[wasm_bindgen_test]
