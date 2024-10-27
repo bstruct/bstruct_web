@@ -41,3 +41,26 @@ async fn make_api_call_get_1() {
 
     assert!(body.as_string().unwrap().starts_with("["));
 }
+
+#[wasm_bindgen_test]
+async fn make_api_call_resolve_body_1() {
+    let (response, body) = ApiCallRequest::new(
+        "https://fake-json-api.mock.beeceptor.com/users",
+        "GET",
+        vec![
+            ["Accept", "*/*"],
+            //https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
+            ["Access-Control-Allow-Origin", "*"],
+            ["Accept-Encoding", "gzip, deflate, br"],
+            // ["Accept-Language", "en-GB,en;q=0.9"],
+        ],
+        None,
+    )
+    .make_api_call_resolve_body()
+    .await
+    .unwrap();
+
+    assert_eq!(response.status(), 200);
+
+    assert!(body.as_string().unwrap().starts_with("["));
+}
