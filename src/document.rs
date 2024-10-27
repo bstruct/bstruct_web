@@ -231,3 +231,10 @@ pub fn handle_js_error<T>(result: Result<T, JsValue>) -> Result<T, Box<dyn error
         Err(error) => Err(format!("{:?}", error).into()),
     }
 }
+
+pub fn handle_serde_error<T>(result: Result<T, serde_wasm_bindgen::Error>) -> Result<T, Box<dyn error::Error>> {
+    match result {
+        Ok(e) => Ok(e),
+        Err(error) => Err(format!("{:?}", error).into()),
+    }
+}
