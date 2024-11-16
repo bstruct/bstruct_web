@@ -13,7 +13,6 @@ pub struct ApiCallRequest<'a> {
 }
 
 impl<'b> ApiCallRequest<'b> {
-
     pub fn new(
         url: &'b str,
         method: &'b str,
@@ -59,16 +58,15 @@ impl<'b> ApiCallRequest<'b> {
         }
     }
 
-    pub async fn make_api_call_resolve_body(&self) -> Result<(web_sys::Response, JsValue), Box<dyn error::Error>> {
-    
+    pub async fn make_api_call_resolve_body(
+        &self,
+    ) -> Result<(web_sys::Response, JsValue), Box<dyn error::Error>> {
         let response = self.make_api_call().await?;
-        let body = wasm_bindgen_futures::JsFuture::from(response.blob().unwrap())
-        .await;
+        let body = wasm_bindgen_futures::JsFuture::from(response.blob().unwrap()).await;
         let body = handle_js_error(body)?;
         let body = web_sys::Blob::from(body);
         let body = handle_js_error(wasm_bindgen_futures::JsFuture::from(body.text()).await)?;
 
         Ok((response, body))
     }
-
 }
