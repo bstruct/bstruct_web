@@ -34,7 +34,7 @@ features = [
     "RequestInit",
     "RequestMode",
     "Response",
-    "Blob",
+    "Blob"
 ]          
 
 [dev-dependencies]
