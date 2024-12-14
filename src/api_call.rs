@@ -1,9 +1,7 @@
-use std::error;
-
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::JsFuture;
 
-use crate::document::handle_js_error;
+use crate::{base_result::BaseResult, document::handle_js_error};
 
 pub struct ApiCallRequest<'a> {
     url: &'a str,
@@ -28,7 +26,7 @@ impl<'b> ApiCallRequest<'b> {
     }
 
     #[doc = "Make an API call using the fetch browser function"]
-    pub async fn make_api_call(&self) -> Result<web_sys::Response, Box<dyn error::Error>> {
+    pub async fn make_api_call(&self) -> BaseResult<web_sys::Response> {
         let request_init = web_sys::RequestInit::new();
         request_init.set_method(self.method);
         // request_init.set_mode(web_sys::RequestMode::Cors);
@@ -60,7 +58,7 @@ impl<'b> ApiCallRequest<'b> {
 
     pub async fn make_api_call_resolve_body(
         &self,
-    ) -> Result<(web_sys::Response, JsValue), Box<dyn error::Error>> {
+    ) -> BaseResult<(web_sys::Response, JsValue)> {
         let response = self.make_api_call().await?;
         let body = wasm_bindgen_futures::JsFuture::from(response.blob().unwrap()).await;
         let body = handle_js_error(body)?;

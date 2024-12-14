@@ -1,6 +1,5 @@
-use std::error;
-use crate::document::HtmlNode;
+use crate::{base_result::BaseResult, document::HtmlNode};
 
 pub trait StructNodeTrait {
-    fn render(&self) -> Result<HtmlNode, Box<dyn error::Error>>;
+    fn render(&self) -> BaseResult<HtmlNode>;
 }

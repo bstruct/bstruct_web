@@ -1,4 +1,4 @@
-use crate::error_messages::ErrorMessages;
+use crate::{base_result::BaseResult, error_messages::ErrorMessages};
 use wasm_bindgen::prelude::*;
 
 //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
@@ -16,14 +16,14 @@ pub enum HtmlNode {
 }
 
 impl HtmlNode {
-    pub fn to_node(&self) -> std::result::Result<web_sys::Node, Box<dyn error::Error>> {
+    pub fn to_node(&self) -> BaseResult<web_sys::Node> {
         match &self {
             HtmlNode::ElementNode(element) => Ok(web_sys::Node::from(element.to_owned())),
             HtmlNode::DocumentFragmentNode(element) => Ok(web_sys::Node::from(element.to_owned())),
         }
     }
 
-    pub fn to_element_node(&self) -> std::result::Result<web_sys::Element, Box<dyn error::Error>> {
+    pub fn to_element_node(&self) -> BaseResult<web_sys::Element> {
         match &self {
             HtmlNode::ElementNode(element) => Ok(element.to_owned()),
             _ => Err("node is not an element node".into()),
@@ -33,7 +33,7 @@ impl HtmlNode {
     pub fn attach_shadow(
         &self,
         open: bool,
-    ) -> std::result::Result<HtmlNode, Box<dyn error::Error>> {
+    ) -> BaseResult<HtmlNode> {
         let shadow_init = if open {
             web_sys::ShadowRootInit::new(web_sys::ShadowRootMode::Open)
         } else {
@@ -52,7 +52,7 @@ impl HtmlNode {
         &self,
         name: &str,
         value: &str,
-    ) -> Result<HtmlNode, Box<dyn error::Error>> {
+    ) -> BaseResult<HtmlNode> {
         let element = self.to_element_node()?;
         handle_js_error(element.set_attribute(name, value))?;
 
@@ -62,7 +62,7 @@ impl HtmlNode {
     pub fn set_attributes(
         &self,
         attributes: Vec<[&str; 2]>,
-    ) -> Result<HtmlNode, Box<dyn error::Error>> {
+    ) -> BaseResult<HtmlNode> {
         for attribute in attributes {
             self.set_attribute(attribute[0], attribute[1])?;
         }
@@ -73,8 +73,8 @@ impl HtmlNode {
     #[doc = "Append children to node and return the original node"]
     pub fn append_children(
         &self,
-        child_elements: Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
-    ) -> Result<HtmlNode, Box<dyn error::Error>> {
+        child_elements: Vec<&BaseResult<HtmlNode>>,
+    ) -> BaseResult<HtmlNode> {
         append_children(self, &child_elements)?;
 
         Ok(self.clone())
@@ -85,7 +85,7 @@ pub trait ResultJs<T: std::clone::Clone> {
     fn to_result_js(&self) -> Result<T, JsError>;
 }
 
-impl<T> ResultJs<T> for std::result::Result<T, Box<dyn error::Error>>
+impl<T> ResultJs<T> for std::result::Result<T, Box<dyn std::error::Error>>
 where
     T: std::clone::Clone + std::fmt::Debug,
 {
@@ -98,8 +98,6 @@ where
     }
 }
 
-use std::error;
-
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(catch, js_namespace = document, js_name = "createElement")]
@@ -109,7 +107,7 @@ extern "C" {
     fn internal_get_element_by_id(id: &str) -> Option<web_sys::Element>;
 }
 
-pub fn create_element(tag_name: &str) -> Result<HtmlNode, Box<dyn error::Error>> {
+pub fn create_element(tag_name: &str) -> BaseResult<HtmlNode> {
     let element = handle_js_error(internal_create_element(tag_name))?;
     Ok(HtmlNode::ElementNode(element))
 }
@@ -129,7 +127,7 @@ pub struct InitialSetup {
     pub body_nodes: Vec<HtmlNode>,
 }
 
-pub fn initial_setup(setup: &InitialSetup) -> Result<web_sys::Document, Box<dyn error::Error>> {
+pub fn initial_setup(setup: &InitialSetup) -> BaseResult<web_sys::Document> {
     let window = web_sys::window().expect(&ErrorMessages::not_found("window"));
     let document = window
         .document()
@@ -164,7 +162,7 @@ pub fn create_element_with_text(
     tag_name: &str,
     class_name: &str,
     text_content: Option<&str>,
-) -> Result<HtmlNode, Box<dyn error::Error>> {
+) -> BaseResult<HtmlNode> {
     let element = handle_js_error(internal_create_element(tag_name))?;
 
     if class_name.len() > 0 {
@@ -177,8 +175,8 @@ pub fn create_element_with_text(
 
 pub fn create_element_fn(
     tag_name: &str,
-    element_fn: impl Fn(&HtmlNode) -> Result<HtmlNode, Box<dyn error::Error>>,
-) -> Result<HtmlNode, Box<dyn error::Error>> {
+    element_fn: impl Fn(&HtmlNode) -> BaseResult<HtmlNode>,
+) -> BaseResult<HtmlNode> {
     let html_node = create_element(tag_name)?;
     element_fn(&html_node)?;
 
@@ -188,8 +186,8 @@ pub fn create_element_fn(
 pub fn create_element_with_children(
     tag_name: &str,
     class_name: &str,
-    child_elements: Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
-) -> Result<HtmlNode, Box<dyn error::Error>> {
+    child_elements: Vec<&BaseResult<HtmlNode>>,
+) -> BaseResult<HtmlNode> {
     let element = create_element(tag_name)?;
     if class_name.len() > 0 {
         element.set_attribute("class", class_name)?;
@@ -202,8 +200,8 @@ pub fn create_element_with_children(
 
 fn append_children(
     element: &HtmlNode,
-    child_elements: &Vec<&Result<HtmlNode, Box<dyn error::Error>>>,
-) -> Result<(), Box<dyn error::Error>> {
+    child_elements: &Vec<&BaseResult<HtmlNode>>,
+) -> BaseResult<()> {
     let node = element.to_node()?;
 
     for child_element in child_elements {
@@ -225,14 +223,14 @@ fn append_children(
     Ok(())
 }
 
-pub fn handle_js_error<T>(result: Result<T, JsValue>) -> Result<T, Box<dyn error::Error>> {
+pub fn handle_js_error<T>(result: Result<T, JsValue>) -> BaseResult<T> {
     match result {
         Ok(e) => Ok(e),
         Err(error) => Err(format!("{:?}", error).into()),
     }
 }
 
-pub fn handle_serde_error<T>(result: Result<T, serde_wasm_bindgen::Error>) -> Result<T, Box<dyn error::Error>> {
+pub fn handle_serde_error<T>(result: Result<T, serde_wasm_bindgen::Error>) -> BaseResult<T> {
     match result {
         Ok(e) => Ok(e),
         Err(error) => Err(format!("{:?}", error).into()),

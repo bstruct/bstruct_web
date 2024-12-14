@@ -1,6 +1,6 @@
-use std::error;
+use crate::base_result::BaseResult;
 
-pub fn get_window_location() -> Result<web_sys::Location, Box<dyn error::Error>> {
+pub fn get_window_location() -> BaseResult<web_sys::Location> {
     let window = web_sys::window();
 
     if let Some(window) = window {
