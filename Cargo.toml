@@ -1,5 +1,5 @@
 [package]
-name = "bstruct_browser_base"
+name = "website_base"
 version = "0.1.0"
 edition = "2021"
 
@@ -16,25 +16,24 @@ js-sys = "0.3"
 version = "0.3"
 
 features = [
+    "Blob",
     "console",
     "Document",
     "DocumentFragment",
     "Event",
+    "Headers",
     "HtmlElement",
     "HtmlHeadElement",
     "Location",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
     "ShadowRoot",
     "ShadowRootInit",
     "ShadowRootMode",
     "Url",
     "Window",
-
-    "Headers",
-    "Request",
-    "RequestInit",
-    "RequestMode",
-    "Response",
-    "Blob"
 ]          
 
 [dev-dependencies]

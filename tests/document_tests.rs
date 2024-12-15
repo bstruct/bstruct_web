@@ -1,10 +1,10 @@
-use bstruct_browser_base::document::{
+use website_base::document::{
     create_element_fn, create_element_with_children, create_element_with_text, get_element_by_id, handle_js_error, initial_setup, HtmlNode, InitialSetup, ResultJs
 };
-use bstruct_browser_base::navigation::is_navigation_supported;
-use bstruct_browser_base::struct_node::StructNodeTrait;
+use website_base::navigation::is_navigation_supported;
+use website_base::struct_node::StructNodeTrait;
 
-use bstruct_browser_base::window::get_window_location;
+use website_base::window::get_window_location;
 use wasm_bindgen_test::*;
 use web_sys::Event;
 
@@ -305,7 +305,7 @@ fn set_onnavigate_event_1() {
     assert!(initial_setup_result.is_ok());
     assert!(is_navigation_supported());
 
-    bstruct_browser_base::navigation::set_onnavigate_event();
+    website_base::navigation::set_onnavigate_event();
 
     element
         .dispatch_event(&Event::new("click").unwrap())

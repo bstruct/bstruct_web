@@ -1,4 +1,4 @@
-use bstruct_browser_base::api_call::ApiCallRequest;
+use website_base::api_call::ApiCallRequest;
 use wasm_bindgen_test::wasm_bindgen_test;
 use web_sys::Blob;
 
