@@ -1,7 +1,7 @@
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::JsFuture;
 
-use crate::{base_result::BaseResult, document::handle_js_error};
+use crate::{base_result::{BaseResult, ToBaseResult}, document::handle_js_error};
 
 pub struct ApiCallRequest<'a> {
     url: &'a str,
@@ -56,14 +56,12 @@ impl<'b> ApiCallRequest<'b> {
         }
     }
 
-    pub async fn make_api_call_resolve_body(
+    pub async fn make_api_call_resolve_json_body(
         &self,
     ) -> BaseResult<(web_sys::Response, JsValue)> {
         let response = self.make_api_call().await?;
-        let body = wasm_bindgen_futures::JsFuture::from(response.blob().unwrap()).await;
-        let body = handle_js_error(body)?;
-        let body = web_sys::Blob::from(body);
-        let body = handle_js_error(wasm_bindgen_futures::JsFuture::from(body.text()).await)?;
+        let body = wasm_bindgen_futures::JsFuture::from(response.json().unwrap()).await;
+        let body = body.to_base_result()?;
 
         Ok((response, body))
     }
