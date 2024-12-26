@@ -123,7 +123,7 @@ fn create_element_with_children_error_2() {
     let node = create_element_with_children(
         "div",
         "",
-        vec![&create_element_with_text("", "", Some("child_elements"))],
+        vec![create_element_with_text("", "", Some("child_elements"))],
     );
 
     assert!(node.is_err());
@@ -183,7 +183,7 @@ fn create_element_fn_1() {
 fn create_element_fn_2() {
     let node = create_element_fn("div", |e| {
         e.attach_shadow(true)?
-            .append_children(vec![&create_element_with_text(
+            .append_children(vec![create_element_with_text(
                 "tag_name",
                 "class_name",
                 Some("text_content"),
@@ -201,10 +201,10 @@ fn create_element_fn_2() {
 fn create_element_fn_3() {
     let node = create_element_fn("div", |e| {
         e.append_children(vec![
-            &create_element_with_text("tag_name1", "class_name1", Some("text_content1")),
-            &create_element_with_text("tag_name2", "class_name2", Some("text_content2")),
-            &create_element_with_text("tag_name3", "class_name3", Some("text_content3")),
-            &create_element_with_text("tag_name4", "class_name4", Some("text_content4")),
+            create_element_with_text("tag_name1", "class_name1", Some("text_content1")),
+            create_element_with_text("tag_name2", "class_name2", Some("text_content2")),
+            create_element_with_text("tag_name3", "class_name3", Some("text_content3")),
+            create_element_with_text("tag_name4", "class_name4", Some("text_content4")),
         ])
     });
 
@@ -220,7 +220,7 @@ fn create_element_with_children_1() {
     let node = create_element_with_children(
         "div",
         "class1",
-        vec![&create_element_with_text(
+        vec![create_element_with_text(
             "span",
             "class2",
             Some("some text"),
@@ -240,7 +240,7 @@ fn to_result_js_1() {
     let node = create_element_with_children(
         "div",
         "class1",
-        vec![&create_element_with_text(
+        vec![create_element_with_text(
             "span",
             "class2",
             Some("some text"),

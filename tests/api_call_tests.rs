@@ -45,8 +45,11 @@ async fn make_api_call_get_1() {
 
 #[derive(Debug, Deserialize)]
 pub struct TestStruct {
+    #[allow(dead_code)]
     pub id: i32,
+    #[allow(dead_code)]
     pub name: String,
+    #[allow(dead_code)]
     pub company: String,
 }
 

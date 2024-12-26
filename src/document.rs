@@ -73,7 +73,7 @@ impl HtmlNode {
     #[doc = "Append children to node and return the original node"]
     pub fn append_children(
         &self,
-        child_elements: Vec<&BaseResult<HtmlNode>>,
+        child_elements: Vec<BaseResult<HtmlNode>>,
     ) -> BaseResult<HtmlNode> {
         append_children(self, &child_elements)?;
 
@@ -186,7 +186,7 @@ pub fn create_element_fn(
 pub fn create_element_with_children(
     tag_name: &str,
     class_name: &str,
-    child_elements: Vec<&BaseResult<HtmlNode>>,
+    child_elements: Vec<BaseResult<HtmlNode>>,
 ) -> BaseResult<HtmlNode> {
     let element = create_element(tag_name)?;
     if class_name.len() > 0 {
@@ -200,7 +200,7 @@ pub fn create_element_with_children(
 
 fn append_children(
     element: &HtmlNode,
-    child_elements: &Vec<&BaseResult<HtmlNode>>,
+    child_elements: &Vec<BaseResult<HtmlNode>>,
 ) -> BaseResult<()> {
     let node = element.to_node()?;
 
