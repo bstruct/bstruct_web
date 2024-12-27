@@ -160,14 +160,10 @@ pub fn initial_setup(setup: &InitialSetup) -> BaseResult<web_sys::Document> {
 
 pub fn create_element_with_text(
     tag_name: &str,
-    class_name: &str,
     text_content: Option<&str>,
 ) -> BaseResult<HtmlNode> {
     let element = handle_js_error(internal_create_element(tag_name))?;
 
-    if class_name.len() > 0 {
-        element.set_class_name(class_name);
-    }
     element.set_text_content(text_content);
 
     Ok(HtmlNode::ElementNode(element))
@@ -185,14 +181,9 @@ pub fn create_element_fn(
 
 pub fn create_element_with_children(
     tag_name: &str,
-    class_name: &str,
     child_elements: Vec<BaseResult<HtmlNode>>,
 ) -> BaseResult<HtmlNode> {
     let element = create_element(tag_name)?;
-    if class_name.len() > 0 {
-        element.set_attribute("class", class_name)?;
-    }
-
     append_children(&element, &child_elements)?;
 
     Ok(element)
