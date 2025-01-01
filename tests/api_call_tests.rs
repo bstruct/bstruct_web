@@ -3,6 +3,7 @@ use website_base::api_call::ApiCallRequest;
 use wasm_bindgen_test::wasm_bindgen_test;
 use web_sys::Blob;
 
+#[allow(dead_code)]
 #[wasm_bindgen_test]
 async fn make_api_call_get_1() {
     let response = ApiCallRequest::new(
@@ -53,6 +54,7 @@ pub struct TestStruct {
     pub company: String,
 }
 
+#[allow(dead_code)]
 #[wasm_bindgen_test]
 async fn make_api_call_resolve_json_body_1() {
     let (response, body) = ApiCallRequest::new(

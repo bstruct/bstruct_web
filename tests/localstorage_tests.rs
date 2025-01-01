@@ -1,6 +1,7 @@
 use website_base::local_storage::{local_storage_get_item, local_storage_set_item};
 use wasm_bindgen_test::*;
 
+#[allow(dead_code)]
 #[wasm_bindgen_test]
 fn local_storage_set_and_get_item_test() {
     let k = "k123";
@@ -14,6 +15,7 @@ fn local_storage_set_and_get_item_test() {
     assert_eq!(v, value_from_storage.unwrap());
 }
 
+#[allow(dead_code)]
 #[wasm_bindgen_test]
 fn local_storage_get_item_test() {
     let k = "k1234";

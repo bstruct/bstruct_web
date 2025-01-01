@@ -30,10 +30,7 @@ impl HtmlNode {
         }
     }
 
-    pub fn attach_shadow(
-        &self,
-        open: bool,
-    ) -> BaseResult<HtmlNode> {
+    pub fn attach_shadow(&self, open: bool) -> BaseResult<HtmlNode> {
         let shadow_init = if open {
             web_sys::ShadowRootInit::new(web_sys::ShadowRootMode::Open)
         } else {
@@ -48,21 +45,14 @@ impl HtmlNode {
 
     #[doc = "Set attribute of ElementNode's. If HtmlNode doesn't support set attribute, the function will return an error."]
     #[doc = "Returns the same element to facilitate the functional programming pattern."]
-    pub fn set_attribute(
-        &self,
-        name: &str,
-        value: &str,
-    ) -> BaseResult<HtmlNode> {
+    pub fn set_attribute(&self, name: &str, value: &str) -> BaseResult<HtmlNode> {
         let element = self.to_element_node()?;
         handle_js_error(element.set_attribute(name, value))?;
 
         Ok(self.clone())
     }
 
-    pub fn set_attributes(
-        &self,
-        attributes: Vec<[&str; 2]>,
-    ) -> BaseResult<HtmlNode> {
+    pub fn set_attributes(&self, attributes: Vec<[&str; 2]>) -> BaseResult<HtmlNode> {
         for attribute in attributes {
             self.set_attribute(attribute[0], attribute[1])?;
         }
@@ -152,7 +142,9 @@ pub fn initial_setup(setup: &InitialSetup) -> BaseResult<web_sys::Document> {
     let body = document.body().expect(&ErrorMessages::not_found("body"));
 
     for body_node in &setup.body_nodes {
-        body.append_child(&body_node.to_node()?).unwrap();
+        if let Ok(body_node) = body_node.to_node(){
+            body.append_child(&body_node).unwrap();
+        }
     }
 
     Ok(document)
