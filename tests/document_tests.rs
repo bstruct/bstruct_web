@@ -36,8 +36,8 @@ fn test_initial_setup_body_1_node() {
     }
 
     impl StructNodeTrait for Test1 {
-        fn render(&self) -> Vec<BaseResult<HtmlNode>> {
-            vec![create_element_with_text("div", Some(&self.text_content))]
+        fn render(&self) -> BaseResult<Vec<HtmlNode>> {
+            Ok(vec![create_element_with_text("div", Some(&self.text_content))?])
         }
     }
 
@@ -45,10 +45,8 @@ fn test_initial_setup_body_1_node() {
         text_content: String::from("my content is amazing"),
     }
     .render()
-    .iter()
-    .filter(|p| p.is_ok())
-    .map(|i| i.as_ref().unwrap().clone())
-    .collect();
+    .unwrap()
+    ;
 
     let initial_setup_result = initial_setup(&InitialSetup {
         title: String::from("this is my new title"),
