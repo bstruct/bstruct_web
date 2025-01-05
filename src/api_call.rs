@@ -1,7 +1,7 @@
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::JsFuture;
 
-use crate::{base_result::{BaseResult, ToBaseResult}, document::handle_js_error};
+use crate::base_result::{BaseResult, ToBaseResult};
 
 pub struct ApiCallRequest<'a> {
     url: &'a str,
@@ -31,9 +31,9 @@ impl<'b> ApiCallRequest<'b> {
         request_init.set_method(self.method);
         // request_init.set_mode(web_sys::RequestMode::Cors);
 
-        let headers = handle_js_error(web_sys::Headers::new())?;
+        let headers = web_sys::Headers::new().to_base_result()?;
         for header in &self.headers {
-            handle_js_error(headers.set(header[0], header[1]))?;
+            headers.set(header[0], header[1]).to_base_result()?;
         }
         request_init.set_headers(&headers);
 
@@ -41,14 +41,14 @@ impl<'b> ApiCallRequest<'b> {
             request_init.set_body(body);
         }
 
-        let request = handle_js_error(web_sys::Request::new_with_str_and_init(
+        let request = web_sys::Request::new_with_str_and_init(
             self.url,
             &request_init,
-        ))?;
+        ).to_base_result()?;
 
         if let Some(window) = web_sys::window() {
             let resp_value = JsFuture::from(window.fetch_with_request(&request)).await;
-            let resp_value = handle_js_error(resp_value)?;
+            let resp_value = resp_value.to_base_result()?;
 
             Ok(web_sys::Response::from(resp_value))
         } else {

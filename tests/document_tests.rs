@@ -1,7 +1,7 @@
-use website_base::base_result::BaseResult;
+use website_base::base_result::{BaseResult, ToBaseResult};
 use website_base::document::{
     create_element_fn, create_element_with_children, create_element_with_text, get_element_by_id,
-    handle_js_error, initial_setup, HtmlNode, InitialSetup, ResultJs,
+    initial_setup, HtmlNode, InitialSetup, ResultJs,
 };
 use website_base::navigation::is_navigation_supported;
 use website_base::struct_node::StructNodeTrait;
@@ -119,21 +119,7 @@ fn create_element_with_text_1() {
 #[allow(dead_code)]
 #[wasm_bindgen_test]
 fn create_element_with_children_error_1() {
-    let node = create_element_with_children("", vec![]);
-
-    assert!(node.is_err());
-
-    let error = node.unwrap_err();
-    assert!(error.to_string().contains("InvalidCharacterError: Failed to execute 'createElement' on 'Document': The tag name provided ('') is not a valid name."));
-}
-
-#[allow(dead_code)]
-#[wasm_bindgen_test]
-fn create_element_with_children_error_2() {
-    let node = create_element_with_children(
-        "div",
-        vec![create_element_with_text("", Some("child_elements"))],
-    );
+    let node = create_element_with_children("", &vec![]);
 
     assert!(node.is_err());
 
@@ -200,7 +186,7 @@ fn create_element_fn_2() {
             .append_children(vec![create_element_with_text(
                 "tag_name",
                 Some("text_content"),
-            )])
+            ).unwrap()])
     });
 
     assert!(node.is_ok());
@@ -215,10 +201,10 @@ fn create_element_fn_2() {
 fn create_element_fn_3() {
     let node = create_element_fn("div", |e| {
         e.append_children(vec![
-            create_element_with_text("tag_name1", Some("text_content1")).unwrap().set_attribute("class", "class_name1"),
-            create_element_with_text("tag_name2", Some("text_content2")).unwrap().set_attribute("class", "class_name2"),
-            create_element_with_text("tag_name3", Some("text_content3")).unwrap().set_attribute("class", "class_name3"),
-            create_element_with_text("tag_name4", Some("text_content4")).unwrap().set_attribute("class", "class_name4"),
+            create_element_with_text("tag_name1", Some("text_content1")).unwrap().set_attribute("class", "class_name1").unwrap(),
+            create_element_with_text("tag_name2", Some("text_content2")).unwrap().set_attribute("class", "class_name2").unwrap(),
+            create_element_with_text("tag_name3", Some("text_content3")).unwrap().set_attribute("class", "class_name3").unwrap(),
+            create_element_with_text("tag_name4", Some("text_content4")).unwrap().set_attribute("class", "class_name4").unwrap(),
         ])
     });
 
@@ -234,9 +220,9 @@ fn create_element_fn_3() {
 fn create_element_with_children_1() {
     let node = create_element_with_children(
         "div",
-        vec![create_element_with_text("span", Some("some text"))
+        &vec![create_element_with_text("span", Some("some text"))
             .unwrap()
-            .set_attribute("class", "class2")],
+            .set_attribute("class", "class2").unwrap()],
     )
     .unwrap()
     .set_attribute("class", "class1");
@@ -254,7 +240,7 @@ fn create_element_with_children_1() {
 fn to_result_js_1() {
     let node = create_element_with_children(
         "div",
-        vec![create_element_with_text("span", Some("some text"))],
+        &vec![create_element_with_text("span", Some("some text")).unwrap()],
     );
 
     let new_node = node.to_result_js();
@@ -265,7 +251,7 @@ fn to_result_js_1() {
 #[allow(dead_code)]
 #[wasm_bindgen_test]
 fn to_result_js_error_1() {
-    let node = create_element_with_children("div", vec![]).unwrap();
+    let node = create_element_with_children("div", &vec![]).unwrap();
 
     let att = node.set_attribute("", "value").to_result_js();
 
@@ -281,7 +267,7 @@ fn handle_js_error_1() {
     let node = create_element_with_text("div", None).unwrap();
     let node = node.to_element_node().unwrap();
 
-    let error = handle_js_error(node.set_attribute("", ""));
+    let error = node.set_attribute("", "").to_base_result();
 
     assert!(error.is_err());
 

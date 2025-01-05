@@ -1,4 +1,7 @@
-use crate::{base_result::BaseResult, error_messages::ErrorMessages};
+use crate::{
+    base_result::{BaseResult, ToBaseResult},
+    error_messages::ErrorMessages,
+};
 use wasm_bindgen::prelude::*;
 
 //https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
@@ -38,7 +41,7 @@ impl HtmlNode {
         };
 
         let element = self.to_element_node()?;
-        let shadow = handle_js_error(element.attach_shadow(&shadow_init))?;
+        let shadow = element.attach_shadow(&shadow_init).to_base_result()?;
 
         Ok(HtmlNode::DocumentFragmentNode(shadow.into()))
     }
@@ -47,7 +50,7 @@ impl HtmlNode {
     #[doc = "Returns the same element to facilitate the functional programming pattern."]
     pub fn set_attribute(&self, name: &str, value: &str) -> BaseResult<HtmlNode> {
         let element = self.to_element_node()?;
-        handle_js_error(element.set_attribute(name, value))?;
+        element.set_attribute(name, value).to_base_result()?;
 
         Ok(self.clone())
     }
@@ -63,7 +66,7 @@ impl HtmlNode {
     #[doc = "Append children to node and return the original node"]
     pub fn append_children(
         &self,
-        child_elements: Vec<BaseResult<HtmlNode>>,
+        child_elements: Vec<HtmlNode>,
     ) -> BaseResult<HtmlNode> {
         append_children(self, &child_elements)?;
 
@@ -98,7 +101,7 @@ extern "C" {
 }
 
 pub fn create_element(tag_name: &str) -> BaseResult<HtmlNode> {
-    let element = handle_js_error(internal_create_element(tag_name))?;
+    let element = internal_create_element(tag_name).to_base_result()?;
     Ok(HtmlNode::ElementNode(element))
 }
 
@@ -142,7 +145,7 @@ pub fn initial_setup(setup: &InitialSetup) -> BaseResult<web_sys::Document> {
     let body = document.body().expect(&ErrorMessages::not_found("body"));
 
     for body_node in &setup.body_nodes {
-        if let Ok(body_node) = body_node.to_node(){
+        if let Ok(body_node) = body_node.to_node() {
             body.append_child(&body_node).unwrap();
         }
     }
@@ -154,7 +157,7 @@ pub fn create_element_with_text(
     tag_name: &str,
     text_content: Option<&str>,
 ) -> BaseResult<HtmlNode> {
-    let element = handle_js_error(internal_create_element(tag_name))?;
+    let element = internal_create_element(tag_name).to_base_result()?;
 
     element.set_text_content(text_content);
 
@@ -173,49 +176,35 @@ pub fn create_element_fn(
 
 pub fn create_element_with_children(
     tag_name: &str,
-    child_elements: Vec<BaseResult<HtmlNode>>,
+    child_elements: &Vec<HtmlNode>,
 ) -> BaseResult<HtmlNode> {
     let element = create_element(tag_name)?;
-    append_children(&element, &child_elements)?;
+    append_children(&element, child_elements)?;
 
     Ok(element)
 }
 
-fn append_children(
-    element: &HtmlNode,
-    child_elements: &Vec<BaseResult<HtmlNode>>,
-) -> BaseResult<()> {
+fn append_children(element: &HtmlNode, child_elements: &Vec<HtmlNode>) -> BaseResult<()> {
     let node = element.to_node()?;
 
     for child_element in child_elements {
-        //check if creation of the element is ok
-        match child_element {
-            Ok(child_element) => {
-                //append_child and confirm if operation is successful
-                match &child_element.to_node() {
-                    Ok(child) => {
-                        handle_js_error(node.append_child(child))?;
-                    }
-                    Err(error) => return Err(format!("{:?}", error).into()),
-                }
-            }
-            Err(error) => return Err(format!("{:?}", error).into()),
-        }
+        node.append_child(&child_element.to_node()?)
+            .to_base_result()?;
     }
 
     Ok(())
 }
 
-pub fn handle_js_error<T>(result: Result<T, JsValue>) -> BaseResult<T> {
-    match result {
-        Ok(e) => Ok(e),
-        Err(error) => Err(format!("{:?}", error).into()),
-    }
-}
+// pub fn handle_js_error<T>(result: Result<T, JsValue>) -> BaseResult<T> {
+//     match result {
+//         Ok(e) => Ok(e),
+//         Err(error) => Err(format!("{:?}", error).into()),
+//     }
+// }
 
-pub fn handle_serde_error<T>(result: Result<T, serde_wasm_bindgen::Error>) -> BaseResult<T> {
-    match result {
-        Ok(e) => Ok(e),
-        Err(error) => Err(format!("{:?}", error).into()),
-    }
-}
+// pub fn handle_serde_error<T>(result: Result<T, serde_wasm_bindgen::Error>) -> BaseResult<T> {
+//     match result {
+//         Ok(e) => Ok(e),
+//         Err(error) => Err(format!("{:?}", error).into()),
+//     }
+// }
