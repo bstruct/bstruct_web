@@ -1,7 +1,10 @@
+use std::vec;
+
 use website_base::base_result::{BaseResult, ToBaseResult};
 use website_base::document::{
-    create_element_fn, create_element_with_children, create_element_with_text, get_element_by_id,
-    initial_setup, HtmlNode, InitialSetup, ResultJs,
+    create_element, create_element_fn, create_element_ns, create_element_with_children,
+    create_element_with_text, create_svg_element, get_element_by_id, initial_setup, HtmlNode,
+    InitialSetup, ResultJs,
 };
 use website_base::navigation::is_navigation_supported;
 use website_base::struct_node::StructNodeTrait;
@@ -37,7 +40,10 @@ fn test_initial_setup_body_1_node() {
 
     impl StructNodeTrait for Test1 {
         fn render(&self) -> BaseResult<Vec<HtmlNode>> {
-            Ok(vec![create_element_with_text("div", Some(&self.text_content))?])
+            Ok(vec![create_element_with_text(
+                "div",
+                Some(&self.text_content),
+            )?])
         }
     }
 
@@ -45,8 +51,7 @@ fn test_initial_setup_body_1_node() {
         text_content: String::from("my content is amazing"),
     }
     .render()
-    .unwrap()
-    ;
+    .unwrap();
 
     let initial_setup_result = initial_setup(&InitialSetup {
         title: String::from("this is my new title"),
@@ -186,7 +191,8 @@ fn create_element_fn_2() {
             .append_children(vec![create_element_with_text(
                 "tag_name",
                 Some("text_content"),
-            ).unwrap()])
+            )
+            .unwrap()])
     });
 
     assert!(node.is_ok());
@@ -201,10 +207,22 @@ fn create_element_fn_2() {
 fn create_element_fn_3() {
     let node = create_element_fn("div", |e| {
         e.append_children(vec![
-            create_element_with_text("tag_name1", Some("text_content1")).unwrap().set_attribute("class", "class_name1").unwrap(),
-            create_element_with_text("tag_name2", Some("text_content2")).unwrap().set_attribute("class", "class_name2").unwrap(),
-            create_element_with_text("tag_name3", Some("text_content3")).unwrap().set_attribute("class", "class_name3").unwrap(),
-            create_element_with_text("tag_name4", Some("text_content4")).unwrap().set_attribute("class", "class_name4").unwrap(),
+            create_element_with_text("tag_name1", Some("text_content1"))
+                .unwrap()
+                .set_attribute("class", "class_name1")
+                .unwrap(),
+            create_element_with_text("tag_name2", Some("text_content2"))
+                .unwrap()
+                .set_attribute("class", "class_name2")
+                .unwrap(),
+            create_element_with_text("tag_name3", Some("text_content3"))
+                .unwrap()
+                .set_attribute("class", "class_name3")
+                .unwrap(),
+            create_element_with_text("tag_name4", Some("text_content4"))
+                .unwrap()
+                .set_attribute("class", "class_name4")
+                .unwrap(),
         ])
     });
 
@@ -222,7 +240,8 @@ fn create_element_with_children_1() {
         "div",
         &vec![create_element_with_text("span", Some("some text"))
             .unwrap()
-            .set_attribute("class", "class2").unwrap()],
+            .set_attribute("class", "class2")
+            .unwrap()],
     )
     .unwrap()
     .set_attribute("class", "class1");
@@ -273,6 +292,69 @@ fn handle_js_error_1() {
 
     // assert!(error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
     assert!(error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn create_svg_1() {
+    let svg = create_element_ns("http://www.w3.org/2000/svg", "svg").unwrap();
+
+    let g = create_element_ns("http://www.w3.org/2000/svg", "g")
+        .unwrap()
+        .set_attributes(vec![[
+            "style",
+            "fill:lightgray;stroke:black;stroke-width:5;cursor:pointer;",
+        ]])
+        .unwrap();
+
+    let rect = create_element_ns("http://www.w3.org/2000/svg", "rect").unwrap();
+    rect.set_attributes(vec![
+        ["x", "5"],
+        ["y", "5"],
+        ["rx", "10"],
+        ["ry", "10"],
+        ["width", "100"],
+        ["height", "100"],
+    ])
+    .unwrap();
+
+    g.append_children(vec![rect]).unwrap();
+
+    svg.set_attributes(vec![["width", "400"], ["height", "180"]])
+        .unwrap();
+    svg.append_children(vec![g]).unwrap();
+
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let body = document.body().unwrap();
+    body.append_child(&svg.to_node().unwrap()).unwrap();
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn create_svg_2() {
+    let svg = create_svg_element("svg").unwrap();
+
+    let circle = create_svg_element("circle")
+        .unwrap()
+        .set_attributes(vec![
+            ["cx", "50"],
+            ["cy", "50"],
+            ["r", "40"],
+            ["stroke", "green"],
+            ["stroke-width", "4"],
+            ["fill", "yellow"],
+        ])
+        .unwrap();
+
+    svg.set_attributes(vec![["width", "100"], ["height", "100"]])
+        .unwrap();
+    svg.append_children(vec![circle]).unwrap();
+
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let body = document.body().unwrap();
+    body.append_child(&svg.to_node().unwrap()).unwrap();
 }
 
 #[allow(dead_code)]

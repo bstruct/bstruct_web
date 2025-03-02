@@ -64,10 +64,7 @@ impl HtmlNode {
     }
 
     #[doc = "Append children to node and return the original node"]
-    pub fn append_children(
-        &self,
-        child_elements: Vec<HtmlNode>,
-    ) -> BaseResult<HtmlNode> {
+    pub fn append_children(&self, child_elements: Vec<HtmlNode>) -> BaseResult<HtmlNode> {
         append_children(self, &child_elements)?;
 
         Ok(self.clone())
@@ -96,6 +93,12 @@ extern "C" {
     #[wasm_bindgen(catch, js_namespace = document, js_name = "createElement")]
     fn internal_create_element(tag_name: &str) -> Result<web_sys::Element, JsValue>;
 
+    #[wasm_bindgen(catch, js_namespace = document, js_name = "createElementNS")]
+    fn internal_create_element_ns(
+        namespace_uri: &str,
+        tag_name: &str,
+    ) -> Result<web_sys::Element, JsValue>;
+
     #[wasm_bindgen(js_namespace = document, js_name = "getElementById")]
     fn internal_get_element_by_id(id: &str) -> Option<web_sys::Element>;
 }
@@ -103,6 +106,19 @@ extern "C" {
 pub fn create_element(tag_name: &str) -> BaseResult<HtmlNode> {
     let element = internal_create_element(tag_name).to_base_result()?;
     Ok(HtmlNode::ElementNode(element))
+}
+
+#[doc = "Creates an element with a namespace. Needed for SVG's HTML and MathML elements."]
+#[doc = "https://developer.mozilla.org/en-US/docs/Web/API/Document/createElementNS#namespaceuri"]
+pub fn create_element_ns(namespace_uri: &str, tag_name: &str) -> BaseResult<HtmlNode> {
+    let element = internal_create_element_ns(namespace_uri, tag_name).to_base_result()?;
+    Ok(HtmlNode::ElementNode(element))
+}
+
+#[doc = "Sugar sintax on createElementNS - https://developer.mozilla.org/en-US/docs/Web/API/Document/createElementNS to comply to SVG needs"]
+#[doc = "Creates an element of a given tag with the namespace 'http://www.w3.org/2000/svg'"]
+pub fn create_svg_element(tag_name: &str) -> BaseResult<HtmlNode> {
+    create_element_ns("http://www.w3.org/2000/svg", tag_name)
 }
 
 pub fn get_element_by_id(id: &str) -> Option<HtmlNode> {
@@ -194,17 +210,3 @@ fn append_children(element: &HtmlNode, child_elements: &Vec<HtmlNode>) -> BaseRe
 
     Ok(())
 }
-
-// pub fn handle_js_error<T>(result: Result<T, JsValue>) -> BaseResult<T> {
-//     match result {
-//         Ok(e) => Ok(e),
-//         Err(error) => Err(format!("{:?}", error).into()),
-//     }
-// }
-
-// pub fn handle_serde_error<T>(result: Result<T, serde_wasm_bindgen::Error>) -> BaseResult<T> {
-//     match result {
-//         Ok(e) => Ok(e),
-//         Err(error) => Err(format!("{:?}", error).into()),
-//     }
-// }
