@@ -26,7 +26,7 @@ async fn make_api_call_get_1() {
     let response = response.unwrap();
 
     assert_eq!(response.status(), 200);
-    assert_eq!(response.status_text(), "");
+    assert_eq!(response.status_text(), "OK");
     assert!(!response.redirected());
 
     let body = wasm_bindgen_futures::JsFuture::from(response.blob().unwrap())
