@@ -188,7 +188,7 @@ fn create_element_fn_1() {
 fn create_element_fn_2() {
     let node = create_element_fn("div", |e| {
         e.attach_shadow(true)?
-            .append_children(vec![create_element_with_text(
+            .append_children(&vec![create_element_with_text(
                 "tag_name",
                 Some("text_content"),
             )
@@ -206,7 +206,7 @@ fn create_element_fn_2() {
 #[wasm_bindgen_test]
 fn create_element_fn_3() {
     let node = create_element_fn("div", |e| {
-        e.append_children(vec![
+        e.append_children(&vec![
             create_element_with_text("tag_name1", Some("text_content1"))
                 .unwrap()
                 .set_attribute("class", "class_name1")
@@ -318,11 +318,11 @@ fn create_svg_1() {
     ])
     .unwrap();
 
-    g.append_children(vec![rect]).unwrap();
+    g.append_children(&vec![rect]).unwrap();
 
     svg.set_attributes(vec![["width", "400"], ["height", "180"]])
         .unwrap();
-    svg.append_children(vec![g]).unwrap();
+    svg.append_children(&vec![g]).unwrap();
 
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
@@ -349,7 +349,7 @@ fn create_svg_2() {
 
     svg.set_attributes(vec![["width", "100"], ["height", "100"]])
         .unwrap();
-    svg.append_children(vec![circle]).unwrap();
+    svg.append_children(&vec![circle]).unwrap();
 
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();

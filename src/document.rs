@@ -64,8 +64,8 @@ impl HtmlNode {
     }
 
     #[doc = "Append children to node and return the original node"]
-    pub fn append_children(&self, child_elements: Vec<HtmlNode>) -> BaseResult<HtmlNode> {
-        append_children(self, &child_elements)?;
+    pub fn append_children(&self, child_elements: &Vec<HtmlNode>) -> BaseResult<HtmlNode> {
+        append_children(self, child_elements)?;
 
         Ok(self.clone())
     }
