@@ -2,7 +2,7 @@ use std::vec;
 
 use website_base::base_result::{BaseResult, ToBaseResult};
 use website_base::document::{
-    create_element, create_element_fn, create_element_ns, create_element_with_children,
+    create_element_fn, create_element_ns, create_element_with_children,
     create_element_with_text, create_svg_element, get_element_by_id, initial_setup, HtmlNode,
     InitialSetup, ResultJs,
 };
