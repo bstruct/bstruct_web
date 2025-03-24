@@ -1,8 +1,5 @@
-use js_sys::JsString;
-
 use crate::base_result::{BaseResult, ToBaseResult};
 
-//Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
 #[doc = "Generate unique identifier"]
 #[doc = "result of the function: Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)"]
 pub fn generate_uuid() -> BaseResult<String> {
