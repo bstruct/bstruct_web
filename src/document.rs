@@ -70,12 +70,13 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
-    pub fn set_event_listener<T: Fn(&web_sys::Event) -> ()>(
+    pub fn set_event_listener<T>(
         &self,
         type_: &str,
         f: T,
     ) -> BaseResult<HtmlNode>
     where
+        T: Fn(&web_sys::Event),
         T: 'static,
     {
         let on_event_type_closure: Closure<dyn Fn(&web_sys::Event)> =
