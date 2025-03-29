@@ -2,9 +2,8 @@ use std::vec;
 
 use website_base::base_result::{BaseResult, ToBaseResult};
 use website_base::document::{
-    create_element_fn, create_element_ns, create_element_with_children,
-    create_element_with_text, create_svg_element, get_element_by_id, initial_setup, HtmlNode,
-    InitialSetup, ResultJs,
+    create_element_fn, create_element_ns, create_element_with_children, create_element_with_text,
+    create_svg_element, get_element_by_id, initial_setup, HtmlNode, InitialSetup, ResultJs,
 };
 use website_base::navigation::is_navigation_supported;
 use website_base::struct_node::StructNodeTrait;
@@ -292,6 +291,27 @@ fn handle_js_error_1() {
 
     // assert!(error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name.\nError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
     assert!(error.unwrap_err().to_string().contains("InvalidCharacterError: Failed to execute 'setAttribute' on 'Element': '' is not a valid attribute name."));
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn set_click_event() {
+    let node = create_element_with_text("button", Some("click me"))
+        .unwrap()
+        .set_event_listener("click", btn_click);
+
+    assert!(node.is_ok());
+
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let body = document.body().unwrap();
+    body.append_child(&node.unwrap().to_element_node().unwrap()).unwrap();
+}
+
+fn btn_click(_event: &web_sys::Event) {
+    web_sys::console::log_1(&web_sys::wasm_bindgen::JsValue::from_str(&format!(
+        "btn_click: click"
+    )));
 }
 
 #[allow(dead_code)]
