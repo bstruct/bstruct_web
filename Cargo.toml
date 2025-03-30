@@ -18,6 +18,8 @@ version = "0.3"
 features = [
     "Blob",
     "console",
+    "CustomEvent",
+    "CustomEventInit",
     "Document",
     "DocumentFragment",
     "Event",
@@ -25,7 +27,6 @@ features = [
     "HtmlElement",
     "HtmlHeadElement",
     "Location",
-    "CustomEvent",
     "Request",
     "RequestInit",
     "RequestMode",
