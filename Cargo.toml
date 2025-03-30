@@ -25,6 +25,7 @@ features = [
     "HtmlElement",
     "HtmlHeadElement",
     "Location",
+    "MessageEvent",
     "Request",
     "RequestInit",
     "RequestMode",
@@ -33,7 +34,7 @@ features = [
     "ShadowRootInit",
     "ShadowRootMode",
     "Url",
-    "Window"
+    "Window",
 ]          
 
 [dev-dependencies]
