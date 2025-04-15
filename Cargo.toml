@@ -23,6 +23,7 @@ features = [
     "Document",
     "DocumentFragment",
     "DomTokenList",
+    "DomRect",
     "Element",
     "Event",
     "Headers",
