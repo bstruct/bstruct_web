@@ -22,6 +22,7 @@ features = [
     "CustomEventInit",
     "Document",
     "DocumentFragment",
+    "DomTokenList",
     "Element",
     "Event",
     "Headers",
