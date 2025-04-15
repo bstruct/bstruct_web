@@ -3,7 +3,8 @@ use std::vec;
 use website_base::base_result::{BaseResult, ToBaseResult};
 use website_base::document::{
     create_element_fn, create_element_ns, create_element_with_children, create_element_with_text,
-    create_svg_element, get_element_by_id, initial_setup, HtmlNode, InitialSetup, ResultJs,
+    create_svg_element, get_element_by_id, initial_setup, HtmlNode, InitialSetup,
+    ResultJs,
 };
 use website_base::navigation::is_navigation_supported;
 use website_base::struct_node::StructNodeTrait;
@@ -86,8 +87,7 @@ fn get_element_by_id_2() {
         .unwrap();
 
     // Document::new().unwrap().append_child(&node.to_node().unwrap()).unwrap();
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
+    let document = HtmlNode::get_document().unwrap().to_document_node().unwrap();
     let body = document.body().unwrap();
     body.append_child(&node.to_node().unwrap()).unwrap();
 
@@ -302,10 +302,10 @@ fn set_click_event() {
 
     assert!(node.is_ok());
 
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
+    let document = HtmlNode::get_document().unwrap().to_document_node().unwrap();
     let body = document.body().unwrap();
-    body.append_child(&node.unwrap().to_element_node().unwrap()).unwrap();
+    body.append_child(&node.unwrap().to_element_node().unwrap())
+        .unwrap();
 }
 
 fn btn_click(_event: &web_sys::Event) {
@@ -344,8 +344,7 @@ fn create_svg_1() {
         .unwrap();
     svg.append_children(&vec![g]).unwrap();
 
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
+    let document = HtmlNode::get_document().unwrap().to_document_node().unwrap();
     let body = document.body().unwrap();
     body.append_child(&svg.to_node().unwrap()).unwrap();
 }
@@ -371,8 +370,7 @@ fn create_svg_2() {
         .unwrap();
     svg.append_children(&vec![circle]).unwrap();
 
-    let window = web_sys::window().unwrap();
-    let document = window.document().unwrap();
+    let document = HtmlNode::get_document().unwrap().to_document_node().unwrap();
     let body = document.body().unwrap();
     body.append_child(&svg.to_node().unwrap()).unwrap();
 }
@@ -416,4 +414,37 @@ fn set_onnavigate_event_1() {
     element
         .dispatch_event(&Event::new("click").unwrap())
         .unwrap();
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn get_document_1() {
+    let document = HtmlNode::get_document();
+
+    assert!(document.is_ok());
+
+    let document = document.unwrap();
+
+    assert_eq!(document.to_node().unwrap().node_name(), "#document");
+
+    document
+        .set_event_listener("my_event", my_event_listener)
+        .unwrap();
+
+    document
+        .to_document_node()
+        .unwrap()
+        .dispatch_event(&Event::new("my_event").unwrap())
+        .unwrap();
+
+    document
+        .remove_event_listener("my_event", my_event_listener)
+        .unwrap();
+}
+
+fn my_event_listener(event: &web_sys::Event) {
+    web_sys::console::log_1(&web_sys::wasm_bindgen::JsValue::from_str(&format!(
+        "my_event_listener: {}",
+        event.type_()
+    )));
 }

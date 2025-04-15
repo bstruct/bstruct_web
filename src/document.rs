@@ -13,16 +13,32 @@ pub enum HtmlNode {
     // CDataSectionNode,
     // ProcessingInstructionNode,
     // CommentNode,
-    // DocumentNode,
+    DocumentNode(web_sys::Document),
     // DocumentTypeNode,
     DocumentFragmentNode(web_sys::DocumentFragment),
 }
 
 impl HtmlNode {
+    pub fn get_document() -> BaseResult<HtmlNode> {
+        if let Ok(document) = get_document() {
+            Ok(HtmlNode::DocumentNode(document))
+        } else {
+            Err(ErrorMessages::not_found("document").into())
+        }
+    }
+
     pub fn to_node(&self) -> BaseResult<web_sys::Node> {
         match &self {
             HtmlNode::ElementNode(element) => Ok(web_sys::Node::from(element.to_owned())),
+            HtmlNode::DocumentNode(document) => Ok(web_sys::Node::from(document.to_owned())),
             HtmlNode::DocumentFragmentNode(element) => Ok(web_sys::Node::from(element.to_owned())),
+        }
+    }
+
+    pub fn to_document_node(&self) -> BaseResult<web_sys::Document> {
+        match &self {
+            HtmlNode::DocumentNode(document) => Ok(document.to_owned()),
+            _ => Err("node is not a document node".into()),
         }
     }
 
@@ -70,11 +86,7 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
-    pub fn set_event_listener<T>(
-        &self,
-        type_: &str,
-        f: T,
-    ) -> BaseResult<HtmlNode>
+    pub fn set_event_listener<T>(&self, type_: &str, f: T) -> BaseResult<HtmlNode>
     where
         T: Fn(&web_sys::Event),
         T: 'static,
@@ -82,7 +94,7 @@ impl HtmlNode {
         let on_event_type_closure: Closure<dyn Fn(&web_sys::Event)> =
             Closure::wrap(Box::new(f) as Box<dyn Fn(&web_sys::Event)>);
 
-        self.to_element_node()?
+        self.to_node()?
             .add_event_listener_with_callback(type_, on_event_type_closure.as_ref().unchecked_ref())
             .to_base_result()?;
 
@@ -91,11 +103,7 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
-    pub fn set_custom_event_listener<T>(
-        &self,
-        type_: &str,
-        f: T,
-    ) -> BaseResult<HtmlNode>
+    pub fn set_custom_event_listener<T>(&self, type_: &str, f: T) -> BaseResult<HtmlNode>
     where
         T: Fn(&web_sys::CustomEvent),
         T: 'static,
@@ -103,7 +111,7 @@ impl HtmlNode {
         let on_event_type_closure: Closure<dyn Fn(&web_sys::CustomEvent)> =
             Closure::wrap(Box::new(f) as Box<dyn Fn(&web_sys::CustomEvent)>);
 
-        self.to_element_node()?
+        self.to_node()?
             .add_event_listener_with_callback(type_, on_event_type_closure.as_ref().unchecked_ref())
             .to_base_result()?;
 
@@ -112,6 +120,45 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
+    pub fn remove_event_listener<T>(&self, type_: &str, f: T) -> BaseResult<HtmlNode>
+    where
+        T: Fn(&web_sys::Event),
+        T: 'static,
+    {
+        let on_event_type_closure: Closure<dyn Fn(&web_sys::Event)> =
+            Closure::wrap(Box::new(f) as Box<dyn Fn(&web_sys::Event)>);
+
+        self.to_node()?
+            .remove_event_listener_with_callback(
+                type_,
+                on_event_type_closure.as_ref().unchecked_ref(),
+            )
+            .to_base_result()?;
+
+        on_event_type_closure.forget();
+
+        Ok(self.clone())
+    }
+
+    pub fn remove_custom_event_listener<T>(&self, type_: &str, f: T) -> BaseResult<HtmlNode>
+    where
+        T: Fn(&web_sys::CustomEvent),
+        T: 'static,
+    {
+        let on_event_type_closure: Closure<dyn Fn(&web_sys::CustomEvent)> =
+            Closure::wrap(Box::new(f) as Box<dyn Fn(&web_sys::CustomEvent)>);
+
+        self.to_node()?
+            .remove_event_listener_with_callback(
+                type_,
+                on_event_type_closure.as_ref().unchecked_ref(),
+            )
+            .to_base_result()?;
+
+        on_event_type_closure.forget();
+
+        Ok(self.clone())
+    }
 }
 
 pub trait ResultJs<T: std::clone::Clone> {
@@ -180,36 +227,45 @@ pub struct InitialSetup {
 }
 
 pub fn initial_setup(setup: &InitialSetup) -> BaseResult<web_sys::Document> {
-    let window = web_sys::window().expect(&ErrorMessages::not_found("window"));
-    let document = window
-        .document()
-        .expect(&ErrorMessages::not_found("document"));
+    if let Ok(document) = get_document() {
+        let head = document.head().expect(&ErrorMessages::not_found("head"));
 
-    let head = document.head().expect(&ErrorMessages::not_found("head"));
+        let query_title = head.query_selector("title");
+        if let Ok(query_title) = query_title {
+            if let Some(title) = query_title {
+                title.set_text_content(Some(&setup.title));
+            } else {
+                let title = document
+                    .create_element("title")
+                    .expect(&ErrorMessages::failed_to_create("title"));
+                title.set_text_content(Some(&setup.title));
 
-    let query_title = head.query_selector("title");
-    if let Ok(query_title) = query_title {
-        if let Some(title) = query_title {
-            title.set_text_content(Some(&setup.title));
-        } else {
-            let title = document
-                .create_element("title")
-                .expect(&ErrorMessages::failed_to_create("title"));
-            title.set_text_content(Some(&setup.title));
+                head.append_child(&title).unwrap();
+            }
+        }
 
-            head.append_child(&title).unwrap();
+        let body = document.body().expect(&ErrorMessages::not_found("body"));
+
+        for body_node in &setup.body_nodes {
+            if let Ok(body_node) = body_node.to_node() {
+                body.append_child(&body_node).unwrap();
+            }
+        }
+
+        Ok(document)
+    } else {
+        Err(ErrorMessages::not_found("document").into())
+    }
+}
+
+fn get_document() -> BaseResult<web_sys::Document> {
+    if let Some(window) = web_sys::window() {
+        if let Some(document) = window.document() {
+            return Ok(document);
         }
     }
 
-    let body = document.body().expect(&ErrorMessages::not_found("body"));
-
-    for body_node in &setup.body_nodes {
-        if let Ok(body_node) = body_node.to_node() {
-            body.append_child(&body_node).unwrap();
-        }
-    }
-
-    Ok(document)
+    Err(ErrorMessages::not_found("document").into())
 }
 
 pub fn create_element_with_text(
