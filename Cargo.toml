@@ -37,6 +37,7 @@ features = [
     "ShadowRootMode",
     "Url",
     "Window",
+    "MouseEvent"
 ]          
 
 [dev-dependencies]
