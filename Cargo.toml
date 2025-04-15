@@ -27,6 +27,7 @@ features = [
     "HtmlElement",
     "HtmlHeadElement",
     "Location",
+    "MouseEvent",
     "NodeList",
     "Request",
     "RequestInit",
@@ -36,8 +37,8 @@ features = [
     "ShadowRootInit",
     "ShadowRootMode",
     "Url",
-    "Window"
-]          
+    "Window",
+]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
