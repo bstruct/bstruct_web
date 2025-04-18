@@ -5,6 +5,5 @@ pub mod document;
 pub mod local_storage;
 pub mod navigation;
 pub mod struct_node;
-pub mod uuid;
 pub mod window;
 pub use web_sys::*;
