@@ -258,7 +258,7 @@ pub fn initial_setup(setup: &InitialSetup) -> BaseResult<web_sys::Document> {
     }
 }
 
-fn get_document() -> BaseResult<web_sys::Document> {
+pub fn get_document() -> BaseResult<web_sys::Document> {
     if let Some(window) = web_sys::window() {
         if let Some(document) = window.document() {
             return Ok(document);
