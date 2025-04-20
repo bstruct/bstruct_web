@@ -28,6 +28,7 @@ features = [
     "Event",
     "Headers",
     "HtmlElement",
+    "HtmlInputElement",
     "HtmlHeadElement",
     "Location",
     "MouseEvent",
