@@ -41,6 +41,7 @@ features = [
     "ShadowRoot",
     "ShadowRootInit",
     "ShadowRootMode",
+    "SubmitEvent",
     "Url",
     "Window",
 ]

@@ -120,6 +120,23 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
+    pub fn set_submit_event_listener<T>(&self, type_: &str, f: T) -> BaseResult<HtmlNode>
+    where
+        T: Fn(&web_sys::SubmitEvent),
+        T: 'static,
+    {
+        let on_event_type_closure: Closure<dyn Fn(&web_sys::SubmitEvent)> =
+            Closure::wrap(Box::new(f) as Box<dyn Fn(&web_sys::SubmitEvent)>);
+
+        self.to_node()?
+            .add_event_listener_with_callback(type_, on_event_type_closure.as_ref().unchecked_ref())
+            .to_base_result()?;
+
+        on_event_type_closure.forget();
+
+        Ok(self.clone())
+    }
+
     pub fn remove_event_listener<T>(&self, type_: &str, f: T) -> BaseResult<HtmlNode>
     where
         T: Fn(&web_sys::Event),
