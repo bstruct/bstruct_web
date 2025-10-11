@@ -244,6 +244,12 @@ pub fn initial_setup(setup: &InitialSetup) -> BaseResult<web_sys::Document> {
             }
         }
 
+        for head_node in &setup.head_nodes {
+            if let Ok(head_node) = head_node.to_node() {
+                head.append_child(&head_node).unwrap();
+            }
+        }
+
         let body = document.body().expect(&ErrorMessages::not_found("body"));
 
         for body_node in &setup.body_nodes {
