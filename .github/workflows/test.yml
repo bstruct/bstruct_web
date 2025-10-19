@@ -1,0 +1,78 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-chrome:
+    name: Test on Chrome
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+      
+      - name: Install chromedriver
+        uses: nanasess/setup-chromedriver@v2
+      
+      - name: Run tests
+        run: wasm-pack test --headless --chrome
+
+  test-firefox:
+    name: Test on Firefox
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Install Firefox
+        uses: browser-actions/setup-firefox@v1
+        with:
+          firefox-version: latest
+      
+      - name: Install geckodriver
+        uses: browser-actions/setup-geckodriver@latest
+      
+      - name: Run tests
+        run: wasm-pack test --headless --firefox
+
+  test-safari:
+    name: Test on Safari
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Enable Safari WebDriver
+        run: sudo safaridriver --enable
+      
+      - name: Run tests
+        run: wasm-pack test --headless --safari
