@@ -2,7 +2,7 @@ use std::vec;
 
 use website_base::base_result::{BaseResult, ToBaseResult};
 use website_base::document::{
-    create_element_fn, create_element_ns, create_element_with_children, create_element_with_text,
+    create_element, create_element_fn, create_element_ns, create_element_with_children, create_element_with_text,
     create_svg_element, get_element_by_id, initial_setup, HtmlNode, InitialSetup,
     ResultJs,
 };
@@ -12,8 +12,6 @@ use website_base::struct_node::StructNodeTrait;
 use wasm_bindgen_test::*;
 use web_sys::Event;
 use website_base::window::get_window_location;
-
-// wasm_bindgen_test_configure!(run_in_browser);
 
 #[allow(dead_code)]
 #[wasm_bindgen_test]
@@ -447,4 +445,152 @@ fn my_event_listener(event: &web_sys::Event) {
         "my_event_listener: {}",
         event.type_()
     )));
+}
+
+// Tests for create_element function
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_success_div() {
+    let result = create_element("div");
+    
+    assert!(result.is_ok(), "Expected Ok result but got: {:?}", result);
+    
+    let html_node = result.unwrap();
+    match html_node {
+        HtmlNode::ElementNode(element) => {
+            assert_eq!(element.tag_name().to_lowercase(), "div");
+        }
+        _ => panic!("Expected ElementNode but got different variant"),
+    }
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_success_span() {
+    let result = create_element("span");
+    
+    assert!(result.is_ok(), "Expected Ok result but got: {:?}", result);
+    
+    let html_node = result.unwrap();
+    match html_node {
+        HtmlNode::ElementNode(element) => {
+            assert_eq!(element.tag_name().to_lowercase(), "span");
+        }
+        _ => panic!("Expected ElementNode but got different variant"),
+    }
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_success_p() {
+    let result = create_element("p");
+    
+    assert!(result.is_ok(), "Expected Ok result but got: {:?}", result);
+    
+    let html_node = result.unwrap();
+    match html_node {
+        HtmlNode::ElementNode(element) => {
+            assert_eq!(element.tag_name().to_lowercase(), "p");
+        }
+        _ => panic!("Expected ElementNode but got different variant"),
+    }
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_success_custom_tag() {
+    let result = create_element("custom-element");
+    
+    assert!(result.is_ok(), "Expected Ok result but got: {:?}", result);
+    
+    let html_node = result.unwrap();
+    match html_node {
+        HtmlNode::ElementNode(element) => {
+            assert_eq!(element.tag_name().to_lowercase(), "custom-element");
+        }
+        _ => panic!("Expected ElementNode but got different variant"),
+    }
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_invalid_empty_tag() {
+    let result = create_element("");
+    
+    assert!(result.is_err(), "Expected Err result for empty tag name");
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_invalid_whitespace_tag() {
+    let result = create_element("   ");
+    
+    assert!(result.is_err(), "Expected Err result for whitespace-only tag name");
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_invalid_special_characters() {
+    let result = create_element("div<>");
+    
+    assert!(result.is_err(), "Expected Err result for tag name with special characters");
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_element_properties() {
+    let result = create_element("button");
+    
+    assert!(result.is_ok(), "Expected Ok result");
+    
+    let html_node = result.unwrap();
+    match &html_node {
+        HtmlNode::ElementNode(element) => {
+            // Test that we can access element properties
+            assert_eq!(element.tag_name().to_lowercase(), "button");
+        }
+        _ => panic!("Expected ElementNode but got different variant"),
+    }
+    
+    // Test that we can convert to Node
+    let node_result = html_node.to_node();
+    assert!(node_result.is_ok(), "Should be able to convert to Node");
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_case_insensitive() {
+    let result_lower = create_element("div");
+    let result_upper = create_element("DIV");
+    let result_mixed = create_element("DiV");
+    
+    assert!(result_lower.is_ok(), "Expected Ok result for lowercase");
+    assert!(result_upper.is_ok(), "Expected Ok result for uppercase");
+    assert!(result_mixed.is_ok(), "Expected Ok result for mixed case");
+    
+    // All should create the same type of element (HTML normalizes to uppercase)
+    if let (Ok(HtmlNode::ElementNode(lower)), Ok(HtmlNode::ElementNode(upper)), Ok(HtmlNode::ElementNode(mixed))) = 
+        (result_lower, result_upper, result_mixed) {
+        assert_eq!(lower.tag_name(), upper.tag_name());
+        assert_eq!(lower.tag_name(), mixed.tag_name());
+    } else {
+        panic!("All results should be ElementNodes");
+    }
+}
+
+#[allow(dead_code)]
+#[wasm_bindgen_test]
+fn test_create_element_html5_tags() {
+    let html5_tags = vec!["article", "aside", "footer", "header", "main", "nav", "section"];
+    
+    for tag in html5_tags {
+        let result = create_element(tag);
+        assert!(result.is_ok(), "Expected Ok result for HTML5 tag: {}", tag);
+        
+        if let Ok(HtmlNode::ElementNode(element)) = result {
+            assert_eq!(element.tag_name().to_lowercase(), tag);
+        } else {
+            panic!("Expected ElementNode for tag: {}", tag);
+        }
+    }
 }

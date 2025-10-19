@@ -1,6 +1,7 @@
 mod error_messages;
 pub mod api_call;
 pub mod base_result;
+pub mod custom_element;
 pub mod document;
 pub mod local_storage;
 pub mod navigation;
