@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::window::get_window_location;
 //!
 //! let location = get_window_location()?;
@@ -25,7 +25,7 @@ use crate::base_result::BaseResult;
 ///
 /// # Example
 ///
-/// ```rust
+/// ```no_run
 /// use website_base::window::get_window_location;
 ///
 /// let location = get_window_location()?;

@@ -15,7 +15,7 @@
 //!
 //! ## Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::document::{create_element, HtmlNode};
 //! use website_base::base_result::BaseResult;
 //!

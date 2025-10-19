@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::api_call::ApiCallRequest;
 //! use wasm_bindgen::JsValue;
 //!

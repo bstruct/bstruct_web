@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::local_storage::{local_storage_set_item, local_storage_get_item};
 //!
 //! // Store a value

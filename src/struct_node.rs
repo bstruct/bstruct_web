@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::struct_node::StructNodeTrait;
 //! use website_base::document::{HtmlNode, create_element};
 //! use website_base::base_result::BaseResult;

@@ -5,7 +5,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::custom_element::{define_custom_element, CustomElementDefinition};
 //!
 //! // Define a custom element with a connected callback
@@ -51,7 +51,7 @@ pub struct CustomElementDefinition {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```no_run
 /// use website_base::custom_element::{define_custom_element, CustomElementDefinition};
 ///
 /// let definition = CustomElementDefinition {
@@ -60,6 +60,7 @@ pub struct CustomElementDefinition {
 /// };
 ///
 /// define_custom_element(&definition)?;
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 pub fn define_custom_element(custom_element_definition: &CustomElementDefinition) -> BaseResult<()> {
     let name = &custom_element_definition.element_name;

@@ -10,9 +10,10 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::document::{create_element, HtmlNode};
 //!
+//! # fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Create an element with attributes
 //! let div = create_element("div")?
 //!     .set_attribute("class", "container")?
@@ -24,6 +25,8 @@
 //!     create_element("span")?,
 //! ];
 //! div.append_children(&children)?;
+//! # Ok(())
+//! # }
 //! ```
 
 use crate::{
@@ -307,11 +310,14 @@ extern "C" {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```no_run
 /// use website_base::document::create_element;
 ///
+/// # fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let div = create_element("div")?;
 /// let paragraph = create_element("p")?;
+/// # Ok(())
+/// # }
 /// ```
 pub fn create_element(tag_name: &str) -> BaseResult<HtmlNode> {
     let element = internal_create_element(tag_name).to_base_result()?;
@@ -350,11 +356,14 @@ pub fn create_element_ns(namespace_uri: &str, tag_name: &str) -> BaseResult<Html
 ///
 /// # Example
 ///
-/// ```rust
+/// ```no_run
 /// use website_base::document::create_svg_element;
 ///
+/// # fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let svg = create_svg_element("svg")?;
 /// let circle = create_svg_element("circle")?;
+/// # Ok(())
+/// # }
 /// ```
 pub fn create_svg_element(tag_name: &str) -> BaseResult<HtmlNode> {
     create_element_ns("http://www.w3.org/2000/svg", tag_name)

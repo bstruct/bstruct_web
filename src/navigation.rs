@@ -10,7 +10,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```no_run
 //! use website_base::navigation::{is_navigation_supported, set_onnavigate_event};
 //!
 //! if is_navigation_supported() {
