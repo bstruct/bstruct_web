@@ -62,17 +62,26 @@ pub struct CustomElementDefinition {
 /// define_custom_element(&definition)?;
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
-pub fn define_custom_element(custom_element_definition: &CustomElementDefinition) -> BaseResult<()> {
-    let name = &custom_element_definition.element_name;
+pub fn define_custom_element(
+    custom_element_definition: &CustomElementDefinition,
+) -> BaseResult<()> {
+    // Check if the element name is already defined
+    let existing_custom_element =
+        custom_elements_get(&custom_element_definition.element_name).to_base_result()?;
+    if existing_custom_element.is_undefined() {
+        let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
+        let class = eval(&class).to_base_result()?;
 
-    let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
-    let class = eval(&class).to_base_result()?;
+        custom_elements_define(&custom_element_definition.element_name, &class).to_base_result()?
+    }
 
-    custom_elements_define(name, &class).to_base_result()
+    Ok(())
 }
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(catch, js_namespace = customElements, js_name = "define")]
     fn custom_elements_define(name: &str, constructor: &JsValue) -> Result<(), JsValue>;
+    #[wasm_bindgen(catch, js_namespace = customElements, js_name = "get")]
+    fn custom_elements_get(name: &str) -> Result<JsValue, JsValue>;
 }
