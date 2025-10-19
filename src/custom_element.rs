@@ -52,30 +52,67 @@ pub struct CustomElementDefinition {
 /// # Example
 ///
 /// ```no_run
-/// use website_base::custom_element::{define_custom_element, CustomElementDefinition};
+/// use website_base::custom_element::{define_custom_element, get_custom_element, CustomElementDefinition};
 ///
+/// # fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let definition = CustomElementDefinition {
 ///     element_name: "hello-world".to_string(),
 ///     connected_callback_function_name: "initHelloWorld".to_string(),
 /// };
 ///
-/// define_custom_element(&definition)?;
-/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// // Check if already registered to avoid errors
+/// if get_custom_element(&definition.element_name)?.is_none() {
+///     define_custom_element(&definition)?;
+/// }
+/// # Ok(())
+/// # }
 /// ```
 pub fn define_custom_element(
     custom_element_definition: &CustomElementDefinition,
 ) -> BaseResult<()> {
-    // Check if the element name is already defined
-    let existing_custom_element =
-        custom_elements_get(&custom_element_definition.element_name).to_base_result()?;
-    if existing_custom_element.is_undefined() {
-        let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
-        let class = eval(&class).to_base_result()?;
+    let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
+    let class = eval(&class).to_base_result()?;
 
-        custom_elements_define(&custom_element_definition.element_name, &class).to_base_result()?
+    custom_elements_define(&custom_element_definition.element_name, &class).to_base_result()
+}
+
+/// Retrieves a custom element constructor from the CustomElementRegistry.
+///
+/// Returns the constructor for a previously defined custom element, or `None`
+/// if no element with the given name has been registered.
+///
+/// # Arguments
+///
+/// * `element_name` - The tag name of the custom element to retrieve
+///
+/// # Errors
+///
+/// Returns an error if there's a JavaScript error accessing the registry.
+///
+/// # Example
+///
+/// ```no_run
+/// use website_base::custom_element::get_custom_element;
+///
+/// # fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// // Check if a custom element is registered
+/// if let Some(constructor) = get_custom_element("my-element")? {
+///     // Element is registered
+///     println!("Custom element 'my-element' is registered");
+/// } else {
+///     println!("Custom element 'my-element' is not registered");
+/// }
+/// # Ok(())
+/// # }
+/// ```
+pub fn get_custom_element(element_name: &str) -> BaseResult<Option<JsValue>> {
+    let result = custom_elements_get(element_name).to_base_result()?;
+    
+    if result.is_undefined() {
+        Ok(None)
+    } else {
+        Ok(Some(result))
     }
-
-    Ok(())
 }
 
 #[wasm_bindgen]
