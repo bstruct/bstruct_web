@@ -1,8 +1,35 @@
+//! HTTP API call utilities using the browser's Fetch API.
+//!
+//! This module provides a high-level interface for making HTTP requests
+//! from WebAssembly using the browser's Fetch API.
+//!
+//! # Example
+//!
+//! ```rust
+//! use website_base::api_call::ApiCallRequest;
+//! use wasm_bindgen::JsValue;
+//!
+//! async fn fetch_data() {
+//!     let request = ApiCallRequest::new(
+//!         "https://api.example.com/data",
+//!         "GET",
+//!         vec![["Content-Type", "application/json"]],
+//!         None,
+//!     );
+//!     
+//!     let (response, body) = request
+//!         .make_api_call_resolve_json_body()
+//!         .await
+//!         .unwrap();
+//! }
+//! ```
+
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::JsFuture;
 
 use crate::base_result::{BaseResult, ToBaseResult};
 
+/// Represents an HTTP API request with method, headers, and optional body.
 pub struct ApiCallRequest<'a> {
     url: &'a str,
     method: &'a str,
@@ -11,6 +38,14 @@ pub struct ApiCallRequest<'a> {
 }
 
 impl<'b> ApiCallRequest<'b> {
+    /// Creates a new API call request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to make the request to
+    /// * `method` - HTTP method (GET, POST, PUT, DELETE, etc.)
+    /// * `headers` - Vector of header key-value pairs
+    /// * `body` - Optional request body as JsValue
     pub fn new(
         url: &'b str,
         method: &'b str,
@@ -25,7 +60,13 @@ impl<'b> ApiCallRequest<'b> {
         }
     }
 
-    #[doc = "Make an API call using the fetch browser function"]
+    /// Makes an API call using the browser's fetch function.
+    ///
+    /// Returns the Response object on success.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the fetch fails or if the window is not available.
     pub async fn make_api_call(&self) -> BaseResult<web_sys::Response> {
         let request_init = web_sys::RequestInit::new();
         request_init.set_method(self.method);
@@ -56,6 +97,13 @@ impl<'b> ApiCallRequest<'b> {
         }
     }
 
+    /// Makes an API call and resolves the response body as JSON.
+    ///
+    /// Returns a tuple of (Response, parsed JSON body).
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the fetch fails or if JSON parsing fails.
     pub async fn make_api_call_resolve_json_body(
         &self,
     ) -> BaseResult<(web_sys::Response, JsValue)> {
