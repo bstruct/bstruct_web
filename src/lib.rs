@@ -45,3 +45,5 @@ pub mod navigation;
 pub mod struct_node;
 pub mod window;
 pub use web_sys::*;
+pub use serde_wasm_bindgen::*;
+pub use wasm_bindgen::*;
