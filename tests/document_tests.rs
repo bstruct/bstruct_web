@@ -11,7 +11,7 @@ use website_base::struct_node::StructNodeTrait;
 
 use wasm_bindgen_test::*;
 use web_sys::Event;
-use website_base::window::{self, get_window_location};
+use website_base::window::get_window_location;
 
 #[allow(dead_code)]
 #[wasm_bindgen_test]

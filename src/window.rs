@@ -2,16 +2,6 @@
 //!
 //! This module provides utilities for accessing the browser window object
 //! and its location property.
-//!
-//! # Example
-//!
-//! ```no_run
-//! use website_base::window::get_window_location;
-//!
-//! let location = get_window_location()?;
-//! let current_url = location.href()?;
-//! ```
-
 use crate::base_result::BaseResult;
 
 /// Gets the window's location object.
@@ -28,8 +18,8 @@ use crate::base_result::BaseResult;
 /// ```no_run
 /// use website_base::window::get_window_location;
 ///
-/// let location = get_window_location()?;
-/// let pathname = location.pathname()?;
+/// let location = get_window_location().unwrap();
+/// let pathname = location.pathname().unwrap();
 /// ```
 pub fn get_window_location() -> BaseResult<web_sys::Location> {
     let window = web_sys::window();

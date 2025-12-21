@@ -27,7 +27,7 @@
 
 # npm install -g chromedriver
 
-wasm-pack test --chrome
-# wasm-pack test --headless --chrome
+# wasm-pack test --chrome
+wasm-pack test --headless --chrome
 # wasm-pack test --safari
 # wasm-pack test --headless --safari

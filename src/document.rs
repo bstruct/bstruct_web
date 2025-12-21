@@ -156,6 +156,14 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
+    
+    pub fn set_text_content(&self, text_content: Option<&str>) -> BaseResult<HtmlNode> {
+        let element = self.to_element_node()?;
+        element.set_text_content(text_content);
+
+        Ok(self.clone())
+    }
+
     /// Appends multiple child nodes to this node and returns self for chaining.
     ///
     /// # Arguments

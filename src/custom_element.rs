@@ -6,15 +6,14 @@
 //! # Example
 //!
 //! ```no_run
-//! use website_base::custom_element::{define_custom_element, CustomElementDefinition};
+//! use website_base::custom_element::CustomElementDefinition;
 //!
-//! // Define a custom element with a connected callback
+//! // Define a custom element and automatically register it if not already registered
 //! let definition = CustomElementDefinition {
-//!     element_name: "my-element".to_string(),
-//!     connected_callback_function_name: "onMyElementConnected".to_string(),
+//!     tag_name: "my-element".to_string(),
 //! };
 //!
-//! define_custom_element(&definition).unwrap();
+//! definition.check_and_define().unwrap();
 //! ```
 
 use crate::base_result::{BaseResult, ToBaseResult};
@@ -23,24 +22,57 @@ use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 /// Configuration for defining a custom element.
 ///
-/// Contains the element name and the name of the JavaScript function
-/// to call when the element is connected to the DOM.
+/// A lightweight wrapper for custom element registration that only requires
+/// a tag name. The custom element will be a basic HTMLElement subclass with
+/// no custom behavior.
 pub struct CustomElementDefinition {
     /// The tag name for the custom element (must contain a hyphen, e.g., "my-element")
-    pub element_name: String,
-    /// Name of the JavaScript function to call in connectedCallback
-    pub connected_callback_function_name: String,
+    pub tag_name: String,
+}
+
+impl CustomElementDefinition {
+    /// Checks if the custom element is already registered and defines it if not.
+    ///
+    /// This is a convenience method that combines checking for existing registration
+    /// and defining the element in a single call, consuming and returning self for
+    /// method chaining.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - JavaScript evaluation fails
+    /// - The custom element cannot be registered
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use website_base::custom_element::CustomElementDefinition;
+    ///
+    /// # fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let definition = CustomElementDefinition {
+    ///     tag_name: "hello-world".to_string(),
+    /// }.check_and_define()?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn check_and_define(self) -> BaseResult<CustomElementDefinition> {
+        if get_custom_element(&self.tag_name)?.is_none() {
+            define_custom_element(&self)?;
+        }
+
+        Ok(self)
+    }
 }
 
 /// Defines and registers a custom element with the browser.
 ///
-/// Creates a custom element class that extends HTMLElement and registers it
-/// with the CustomElementRegistry. The element will call the specified function
-/// when connected to the DOM.
+/// Creates a basic custom element class that extends HTMLElement and registers it
+/// with the CustomElementRegistry. The created element has no custom behavior and
+/// is primarily useful as a semantic container or styling hook.
 ///
 /// # Arguments
 ///
-/// * `custom_element_definition` - Configuration for the custom element
+/// * `custom_element_definition` - Configuration containing the tag name
 ///
 /// # Errors
 ///
@@ -56,12 +88,11 @@ pub struct CustomElementDefinition {
 ///
 /// # fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// let definition = CustomElementDefinition {
-///     element_name: "hello-world".to_string(),
-///     connected_callback_function_name: "initHelloWorld".to_string(),
+///     tag_name: "hello-world".to_string(),
 /// };
 ///
 /// // Check if already registered to avoid errors
-/// if get_custom_element(&definition.element_name)?.is_none() {
+/// if get_custom_element(&definition.tag_name)?.is_none() {
 ///     define_custom_element(&definition)?;
 /// }
 /// # Ok(())
@@ -70,10 +101,11 @@ pub struct CustomElementDefinition {
 pub fn define_custom_element(
     custom_element_definition: &CustomElementDefinition,
 ) -> BaseResult<()> {
-    let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
+    // let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
+    let class = "(class BstructCustomElement extends HTMLElement{constructor(){super();}})";
     let class = eval(&class).to_base_result()?;
 
-    custom_elements_define(&custom_element_definition.element_name, &class).to_base_result()
+    custom_elements_define(&custom_element_definition.tag_name, &class).to_base_result()
 }
 
 /// Retrieves a custom element constructor from the CustomElementRegistry.
@@ -107,7 +139,7 @@ pub fn define_custom_element(
 /// ```
 pub fn get_custom_element(element_name: &str) -> BaseResult<Option<JsValue>> {
     let result = custom_elements_get(element_name).to_base_result()?;
-    
+
     if result.is_undefined() {
         Ok(None)
     } else {
