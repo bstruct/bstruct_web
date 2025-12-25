@@ -14,7 +14,7 @@
 //!     title: String,
 //! }
 //!
-//! impl StructNodeTrait for MyComponent {
+//! impl HtmlNodeRender for MyComponent {
 //!     fn render(&self) -> BaseResult<Vec<HtmlNode>> {
 //!         let div = create_element("div")?;
 //!         Ok(vec![div])
@@ -27,7 +27,7 @@ use crate::{base_result::BaseResult, document::HtmlNode};
 /// Trait for types that can be rendered as HTML nodes.
 ///
 /// Implement this trait to provide custom rendering logic for your types.
-pub trait StructNodeTrait {
+pub trait HtmlNodeRender {
     /// Renders this struct as a vector of HTML nodes.
     ///
     /// # Errors

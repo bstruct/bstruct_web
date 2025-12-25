@@ -7,7 +7,7 @@ use website_base::document::{
     InitialSetup, ResultJs,
 };
 use website_base::navigation::is_navigation_supported;
-use website_base::struct_node::StructNodeTrait;
+use website_base::struct_node::HtmlNodeRender;
 
 use wasm_bindgen_test::*;
 use web_sys::Event;
@@ -36,7 +36,7 @@ fn test_initial_setup_body_1_node() {
         text_content: String,
     }
 
-    impl StructNodeTrait for Test1 {
+    impl HtmlNodeRender for Test1 {
         fn render(&self) -> BaseResult<Vec<HtmlNode>> {
             Ok(vec![create_element_with_text(
                 "div",
