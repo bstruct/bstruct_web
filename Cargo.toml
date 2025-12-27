@@ -41,7 +41,8 @@ web-sys = { version = "0.3", features = [
     "ShadowRootMode",
     "Url",
     "Window",
-    "MutationObserver"
+    "MutationObserver",
+    "MutationObserverInit",
 ]}
 
 [dev-dependencies]
