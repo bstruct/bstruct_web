@@ -102,7 +102,14 @@ pub fn define_custom_element(
     custom_element_definition: &CustomElementDefinition,
 ) -> BaseResult<()> {
     // let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
-    let class = "(class BstructCustomElement extends HTMLElement{constructor(){super();}})";
+    let class = "(class BstructCustomElement extends HTMLElement{
+    constructor(){super();}
+    connectedCallback(){this.dispatch_event(new Event('connected'));}
+    disconnectedCallback(){}
+    connectedMoveCallback(){}
+    adoptedCallback(){}
+    attributeChangedCallback(name, oldValue, newValue){}
+    })";
     let class = eval(&class).to_base_result()?;
 
     custom_elements_define(&custom_element_definition.tag_name, &class).to_base_result()
