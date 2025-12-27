@@ -105,10 +105,10 @@ pub fn define_custom_element(
     let class = "(class BstructCustomElement extends HTMLElement{
     constructor(){super();}
     connectedCallback(){ this.dispatchEvent(new Event('connected')); }
-    disconnectedCallback(){}
-    connectedMoveCallback(){}
-    adoptedCallback(){}
-    attributeChangedCallback(name, oldValue, newValue){}
+    disconnectedCallback(){ this.dispatchEvent(new Event('disconnected')); }
+    connectedMoveCallback(){ this.dispatchEvent(new Event('connected_move')); }
+    adoptedCallback(){ this.dispatchEvent(new Event('adopted')); }
+    attributeChangedCallback(name, oldValue, newValue){ this.dispatchEvent(new CustomEvent('attribute_changed', {detail: {name, oldValue, newValue}})); }
     })";
     let class = eval(&class).to_base_result()?;
 
