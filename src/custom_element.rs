@@ -104,7 +104,7 @@ pub fn define_custom_element(
     // let class = format!("(class BstructCustomElement extends HTMLElement {{ constructor(){{super();}} connectedCallback(){{ {}(this); }} }})", custom_element_definition.connected_callback_function_name);
     let class = "(class BstructCustomElement extends HTMLElement{
     constructor(){super();}
-    connectedCallback(){ debugger; this.dispatch_event(new Event('connected'));}
+    connectedCallback(){ debugger;}
     disconnectedCallback(){}`
     connectedMoveCallback(){}
     adoptedCallback(){}
