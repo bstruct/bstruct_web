@@ -1,4 +1,3 @@
-use wasm_bindgen::JsCast;
 use wasm_bindgen_test::*;
 use website_base::{
     custom_element::{define_custom_element, get_custom_element, CustomElementDefinition},
