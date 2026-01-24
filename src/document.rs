@@ -156,7 +156,6 @@ impl HtmlNode {
         Ok(self.clone())
     }
 
-    
     pub fn set_text_content(&self, text_content: Option<&str>) -> BaseResult<HtmlNode> {
         let element = self.to_element_node()?;
         element.set_text_content(text_content);
@@ -175,6 +174,33 @@ impl HtmlNode {
     /// Returns an error if any child cannot be appended.
     pub fn append_children(&self, child_elements: &Vec<HtmlNode>) -> BaseResult<HtmlNode> {
         append_children(self, child_elements)?;
+
+        Ok(self.clone())
+    }
+
+    /// Adds a mouse event listener to this node.
+    ///
+    /// # Arguments
+    ///
+    /// * `type_` - The mouse event type (e.g., "click", "mousemove")
+    /// * `f` - The callback function
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the event listener cannot be added.
+    pub fn set_mouse_event_listener<T>(&self, type_: &str, f: T) -> BaseResult<HtmlNode>
+    where
+        T: Fn(&web_sys::MouseEvent),
+        T: 'static,
+    {
+        let on_event_type_closure: Closure<dyn Fn(&web_sys::MouseEvent)> =
+            Closure::wrap(Box::new(f) as Box<dyn Fn(&web_sys::MouseEvent)>);
+
+        self.to_node()?
+            .add_event_listener_with_callback(type_, on_event_type_closure.as_ref().unchecked_ref())
+            .to_base_result()?;
+
+        on_event_type_closure.forget();
 
         Ok(self.clone())
     }
