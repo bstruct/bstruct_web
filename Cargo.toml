@@ -28,10 +28,12 @@ web-sys = { version = "0.3", features = [
     "HtmlElement",
     "HtmlHeadElement",
     "HtmlInputElement",
+    "HtmlStyleElement",
     "HtmlTextAreaElement",
     "Location",
     "MouseEvent",
     "NodeList",
+    "Performance",
     "Request",
     "RequestInit",
     "RequestMode",
@@ -41,7 +43,6 @@ web-sys = { version = "0.3", features = [
     "ShadowRootMode",
     "Url",
     "Window",
-    "Performance",
 ]}
 
 [dev-dependencies]
